@@ -65,20 +65,20 @@ function getHormuzStatus(day) {
 /* Chart.js global editorial (light) defaults */
 Chart.defaults.color          = '#6B6B6B';
 Chart.defaults.borderColor    = '#E4E1DA';
-Chart.defaults.font.family    = "'Libre Franklin', system-ui, sans-serif";
+Chart.defaults.font.family    = "'Work Sans', system-ui, sans-serif";
 Chart.defaults.font.size      = 11;
 
 const TIP = {
   backgroundColor:'#FFFFFF', borderColor:'#E4E1DA', borderWidth:1,
   titleColor:'#1A1A1A', bodyColor:'#2B2B2B', padding:12,
-  titleFont:{ family:"'Libre Franklin', sans-serif", weight:'600', size:12 },
-  bodyFont:{ family:"'Libre Franklin', sans-serif", size:11 }
+  titleFont:{ family:"'Work Sans', sans-serif", weight:'600', size:12 },
+  bodyFont:{ family:"'Work Sans', sans-serif", size:11 }
 };
 
 function mkScale(overrides = {}) {
   return {
     grid:  { color:'#EEEBE4' },
-    ticks: { color:'#6B6B6B', font:{ family:"'Libre Franklin', sans-serif", size:10 } },
+    ticks: { color:'#6B6B6B', font:{ family:"'Work Sans', sans-serif", size:10 } },
     ...overrides
   };
 }
@@ -229,10 +229,19 @@ function scrollToPhase(phase) {
   window.scrollTo({ top: Math.max(y, 0), behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
 }
 
-/* Highlight the phase pill matching the active timeline step */
+/* Highlight the phase pill matching the active timeline step, and (when the
+   legend is a horizontal scroller on mobile) bring that pill into view. */
 function highlightPhasePill(phase) {
+  const scroller = document.getElementById('phase-legend');
   document.querySelectorAll('#phase-pills-container .phase-pill').forEach(p => {
-    p.classList.toggle('is-current', p.dataset.phase === phase);
+    const on = p.dataset.phase === phase;
+    p.classList.toggle('is-current', on);
+    if (on && scroller && scroller.scrollWidth > scroller.clientWidth + 4) {
+      const cRect = scroller.getBoundingClientRect();
+      const pRect = p.getBoundingClientRect();
+      const target = scroller.scrollLeft + (pRect.left - cRect.left) - (cRect.width / 2) + (pRect.width / 2);
+      scroller.scrollTo({ left: Math.max(target, 0), behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
+    }
   });
 }
 
@@ -258,11 +267,13 @@ function initStickyLegend() {
   io.observe(sentinel);
 }
 
-/* Floating scroll assist (bottom-right). On mobile it advances through each
-   scrollytelling step (map tab); on desktop it jumps section to section. */
+/* Floating scroll assist (bottom-right, up + down). On mobile it steps through
+   each scrollytelling step (map tab); on desktop it jumps section to section. */
 function initSectionNav() {
-  const btn = document.getElementById('section-nav');
-  if (!btn) return;
+  const nav  = document.getElementById('section-nav');
+  const up   = document.getElementById('section-nav-up');
+  const down = document.getElementById('section-nav-down');
+  if (!nav || !up || !down) return;
 
   const SECTION_SEL = '#lede, #scrollytelling, section.chart-section-bg, section:not([id]):not(.chart-section-bg), #sandbox, #resolution-footer';
 
@@ -281,28 +292,24 @@ function initSectionNav() {
     return navHeight() + 8;
   };
 
-  const destOf = el => el.getBoundingClientRect().top + window.scrollY - readingOffset(el);
+  const destOf   = el => el.getBoundingClientRect().top + window.scrollY - readingOffset(el);
+  const scrollToY = y => window.scrollTo({ top: Math.max(y, 0), behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
 
-  btn.addEventListener('click', () => {
-    if ((window.innerHeight + window.scrollY) >= document.body.scrollHeight - 4) {
-      window.scrollTo({ top: 0, behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
-      return;
-    }
-    // pick the next target whose scroll destination is genuinely below us
-    const next = targets()
-      .map(destOf)
-      .filter(y => y > window.scrollY + 24)
-      .sort((a, b) => a - b)[0];
-    const y = next != null
-      ? next
-      : Math.max(destOf(document.getElementById('resolution-footer')), window.scrollY + 24);
-    window.scrollTo({ top: Math.max(y, 0), behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
+  down.addEventListener('click', () => {
+    const next = targets().map(destOf).filter(y => y > window.scrollY + 24).sort((a, b) => a - b)[0];
+    scrollToY(next != null ? next : document.body.scrollHeight);
+  });
+
+  up.addEventListener('click', () => {
+    const prev = targets().map(destOf).filter(y => y < window.scrollY - 24).sort((a, b) => b - a)[0];
+    scrollToY(prev != null ? prev : 0);
   });
 
   const onScroll = () => {
     const y = window.scrollY;
-    btn.classList.toggle('is-visible', y > window.innerHeight * 0.55);
-    btn.classList.toggle('at-bottom', (window.innerHeight + y) >= document.body.scrollHeight - 4);
+    nav.classList.toggle('is-visible', y > window.innerHeight * 0.45);
+    up.classList.toggle('is-disabled', y <= 24);
+    down.classList.toggle('is-disabled', (window.innerHeight + y) >= document.body.scrollHeight - 4);
   };
   window.addEventListener('scroll', onScroll, { passive: true });
   onScroll();
@@ -662,7 +669,7 @@ function drawSankey(svgId, { nodes, links }, colHeaders = [], opts = {}) {
       t.setAttribute('text-anchor', isLast ? 'end' : 'start');
       t.setAttribute('fill', '#6B6B6Baaa');
       t.setAttribute('font-size', '9');
-      t.setAttribute('font-family', "'Libre Franklin', sans-serif");
+      t.setAttribute('font-family', "'Work Sans', sans-serif");
       t.textContent = line;
       svgEl.appendChild(t);
     });
@@ -680,7 +687,7 @@ function drawSankey(svgId, { nodes, links }, colHeaders = [], opts = {}) {
     t.setAttribute('text-anchor', isLast ? 'end' : 'start');
     t.setAttribute('fill', '#6B6B6B555');
     t.setAttribute('font-size', '8.5');
-    t.setAttribute('font-family', "'Libre Franklin', sans-serif");
+    t.setAttribute('font-family', "'Work Sans', sans-serif");
     t.setAttribute('font-weight', '700');
     t.setAttribute('letter-spacing', '1');
     t.textContent = hdr.toUpperCase();
@@ -699,7 +706,7 @@ function drawSankey(svgId, { nodes, links }, colHeaders = [], opts = {}) {
     const bt = document.createElementNS(NS, 'text');
     bt.setAttribute('x', bx); bt.setAttribute('y', by);
     bt.setAttribute('fill', '#fde725'); bt.setAttribute('font-size', '8');
-    bt.setAttribute('font-family', "'Libre Franklin', sans-serif");
+    bt.setAttribute('font-family', "'Work Sans', sans-serif");
     bt.setAttribute('font-weight', '700');
     bt.textContent = 'BLOCKED Mar 1 – present';
     svgEl.appendChild(bt);
@@ -853,7 +860,7 @@ function initHormuzBar() {
               borderColor:'rgba(26,26,26,0.2)', borderWidth:1.5,
               borderDash:[5,4],
               label:{ display:true, content:'IMF PortWatch baseline ~94/day',
-                color:'#6B6B6B', font:{ family:"'Libre Franklin', sans-serif", size:9 },
+                color:'#6B6B6B', font:{ family:"'Work Sans', sans-serif", size:9 },
                 position:'end', backgroundColor:'transparent' }
             },
             eiaBaseline:{
@@ -861,7 +868,7 @@ function initHormuzBar() {
               borderColor:'rgba(26,26,26,0.1)', borderWidth:1,
               borderDash:[3,6],
               label:{ display:true, content:"EIA/Lloyd's ~100/day",
-                color:'#2B2B2B', font:{ family:"'Libre Franklin', sans-serif", size:8 },
+                color:'#2B2B2B', font:{ family:"'Work Sans', sans-serif", size:8 },
                 position:'start', backgroundColor:'transparent' }
             }
           }
@@ -941,7 +948,7 @@ function initFXRate() {
               type:'line', yMin:96.844, yMax:96.844,
               borderColor: V.v9 + '88', borderWidth:1.5, borderDash:[5,4],
               label:{ display:true, content:'₹96.844 peak (May 20, CONFIRMED)',
-                color: V.v9, font:{ family:"'Libre Franklin', sans-serif", size:9 },
+                color: V.v9, font:{ family:"'Work Sans', sans-serif", size:9 },
                 position:'end', backgroundColor:'rgba(0,0,0,0.5)' }
             }
           }
@@ -1024,14 +1031,14 @@ function initWarRisk() {
               type:'line', yMin:2.5, yMax:2.5,
               borderColor: V.v9 + '99', borderWidth:1.5, borderDash:[5,4],
               label:{ display:true, content:'2.5% AWRP peak (early Mar — S&P Global CONFIRMED)',
-                color: V.v9, font:{ family:"'Libre Franklin', sans-serif", size:9 },
+                color: V.v9, font:{ family:"'Work Sans', sans-serif", size:9 },
                 position:'end', backgroundColor:'rgba(0,0,0,0.6)' }
             },
             baseline:{
               type:'line', yMin:0.125, yMax:0.125,
               borderColor:'rgba(26,26,26,0.15)', borderWidth:1, borderDash:[3,5],
               label:{ display:true, content:'Pre-conflict baseline 0.10–0.15%',
-                color:'#6B6B6B', font:{ family:"'Libre Franklin', sans-serif", size:8 },
+                color:'#6B6B6B', font:{ family:"'Work Sans', sans-serif", size:8 },
                 position:'start', backgroundColor:'transparent' }
             }
           }
@@ -1075,12 +1082,12 @@ function initMariners() {
             imoAlert:{ type:'line', yMin:20000, yMax:20000, borderColor:V.v9+'55',
               borderWidth:1.5, borderDash:[5,4],
               label:{ display:true, content:'IMO declared humanitarian crisis (Apr 21)',
-                color:V.v9, font:{ family:"'Libre Franklin', sans-serif", size:9 },
+                color:V.v9, font:{ family:"'Work Sans', sans-serif", size:9 },
                 position:'start', backgroundColor:'rgba(0,0,0,0.5)' }},
             genCaine:{ type:'line', yMin:22500, yMax:22500, borderColor:V.v8+'55',
               borderWidth:1.5, borderDash:[3,5],
               label:{ display:true, content:'Gen. Caine confirmed 22,500 (May 6)',
-                color:V.v8, font:{ family:"'Libre Franklin', sans-serif", size:9 },
+                color:V.v8, font:{ family:"'Work Sans', sans-serif", size:9 },
                 position:'end', backgroundColor:'rgba(0,0,0,0.5)' }}
           }
         }

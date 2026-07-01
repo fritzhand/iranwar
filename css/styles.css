@@ -67,11 +67,11 @@
   --text-muted:     var(--faint);
   --text-accent:    var(--crisis);
 
-  /* Typography */
-  --font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
-  --font-read:    'Newsreader', Georgia, serif;
-  --font-mono:    'Libre Franklin', system-ui, sans-serif; /* UI/label face (name kept for compat) */
-  --font-sans:    'Libre Franklin', system-ui, sans-serif;
+  /* Typography — Crimson Pro (display/serif) + Work Sans (body/UI/sans) */
+  --font-display: 'Crimson Pro', Georgia, 'Times New Roman', serif;
+  --font-read:    'Work Sans', system-ui, sans-serif;
+  --font-mono:    'Work Sans', system-ui, sans-serif; /* UI/label face (name kept for compat) */
+  --font-sans:    'Work Sans', system-ui, sans-serif;
 
   /* Layout */
   --max-width:    1080px;
@@ -302,25 +302,37 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
 }
 
 .hero-eyebrow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
   font-family: var(--font-sans);
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--crisis);
-  letter-spacing: 0.18em;
   text-transform: uppercase;
   margin-bottom: 28px;
+}
+.hero-eyebrow .eyebrow-primary {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--crisis);
+  letter-spacing: 0.2em;
+}
+.hero-eyebrow .eyebrow-secondary {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--muted);
+  letter-spacing: 0.16em;
 }
 
 .hero-title {
   font-family: var(--font-display);
   font-optical-sizing: auto;
-  font-size: clamp(48px, 8vw, 92px);
+  font-size: clamp(2.4rem, 9vw, 4.5rem);
   font-weight: 600;
-  line-height: 0.98;
+  line-height: 1.0;
   letter-spacing: -0.015em;
   color: var(--ink);
   margin-bottom: 24px;
-  text-wrap: balance;
+  white-space: nowrap; /* keep "The 2026 Iran War" on a single line */
 }
 
 .hero-subtitle {
@@ -1391,11 +1403,22 @@ input[type="range"].crisis-slider::-moz-range-thumb {
   text-transform: uppercase;
 }
 
-/* ─── SECTION-NAV FLOATING BUTTON ─── */
+/* ─── SECTION-NAV FLOATING BUTTONS (up + down) ─── */
 .section-nav {
   position: fixed;
   right: 20px;
   bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  opacity: 0;
+  transform: translateY(8px);
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  z-index: 850;
+}
+.section-nav.is-visible { opacity: 1; transform: none; pointer-events: auto; }
+.section-nav-btn {
   width: 46px;
   height: 46px;
   border-radius: 50%;
@@ -1407,16 +1430,11 @@ input[type="range"].crisis-slider::-moz-range-thumb {
   justify-content: center;
   cursor: pointer;
   box-shadow: 0 6px 20px rgba(26, 26, 26, 0.28);
-  opacity: 0;
-  transform: translateY(8px);
-  pointer-events: none;
-  transition: opacity 0.2s ease, transform 0.2s ease, background 0.2s ease;
-  z-index: 850;
+  transition: background 0.2s ease, opacity 0.2s ease;
 }
-.section-nav.is-visible { opacity: 1; transform: none; pointer-events: auto; }
-.section-nav:hover { background: var(--crisis); }
-.section-nav svg { width: 20px; height: 20px; transition: transform 0.25s ease; }
-.section-nav.at-bottom svg { transform: rotate(180deg); }
+.section-nav-btn:hover { background: var(--crisis); }
+.section-nav-btn svg { width: 20px; height: 20px; }
+.section-nav-btn.is-disabled { opacity: 0.32; pointer-events: none; }
 
 /* ─── RESPONSIVE ─── */
 @media (max-width: 900px) {
@@ -1438,7 +1456,7 @@ input[type="range"].crisis-slider::-moz-range-thumb {
     z-index: 5;
   }
 
-  .scroll-steps { padding: 20px 20px 56px; }
+  .scroll-steps { padding: 20px 24px 56px 26px; }
   .scroll-steps::before { height: 1vh; }
   .scroll-step  {
     min-height: 0;
