@@ -6,9 +6,10 @@
    Design system: see DESIGN.md
    Typography: Fraunces (display) · Newsreader (body) · Libre Franklin (UI)
    Palette: paper + ink + oxblood crisis accent (replaces viridis)
-   ══════════════════════════════════════════════════════════════════ */
 
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=Libre+Franklin:wght@400;500;600;700&display=swap');
+   Fonts are loaded via <link> in index.html (Fraunces · Newsreader ·
+   Libre Franklin).
+   ══════════════════════════════════════════════════════════════════ */
 
 /* ─── CSS CUSTOM PROPERTIES ─── */
 :root {
@@ -289,6 +290,88 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
   bottom: 0; left: 0; right: 0;
   height: 3px;
   background: linear-gradient(to right, var(--v0), var(--v3), var(--v5), var(--v7), var(--v9));
+}
+
+.hero-byline {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  letter-spacing: 0.03em;
+  color: var(--muted);
+  margin-bottom: 44px;
+}
+
+.hero-byline-name {
+  font-weight: 600;
+  color: var(--ink);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.hero-stat-number.hero-stat-peak { color: var(--crisis); }
+
+/* ─── ARTICLE LEDE ─── */
+#lede {
+  background: var(--paper);
+  padding: 88px 24px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.lede-inner {
+  max-width: var(--measure);
+  margin: 0 auto;
+}
+
+.lede-standfirst {
+  font-family: var(--font-read);
+  font-size: clamp(22px, 2.8vw, 27px);
+  line-height: 1.45;
+  color: var(--ink);
+  margin-bottom: 32px;
+}
+
+.lede-body {
+  font-family: var(--font-read);
+  font-size: 19px;
+  line-height: 1.75;
+  color: var(--body);
+  margin-bottom: 28px;
+}
+
+.lede-body:first-of-type::first-letter {
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--ink);
+  float: left;
+  font-size: 4.6rem;
+  line-height: 0.82;
+  padding: 6px 12px 0 0;
+}
+
+.pull-quote {
+  margin: 40px 0;
+  padding: 10px 0;
+  border-top: 2px solid var(--ink);
+  border-bottom: 1px solid var(--rule);
+}
+
+.pull-quote p {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(24px, 3.2vw, 32px);
+  line-height: 1.28;
+  color: var(--ink);
+  margin: 12px 0;
+}
+
+.pull-quote cite {
+  font-family: var(--font-sans);
+  font-style: normal;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
 }
 
 /* ─── PHASE LEGEND ─── */
