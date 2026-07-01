@@ -220,12 +220,36 @@ function prefersReducedMotion() {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
+/* Resolve a phase to its timeline step. Most phases have a dedicated step;
+   `collapse` exists only as a map marker / legend colour (the ceasefire's
+   collapse is narrated inside the ceasefire1 step), so fall back to the nearest
+   step by escalation order rather than dumping the reader at the top of the
+   timeline. */
+function stepForPhase(phase) {
+  const exact = document.querySelector(`.scroll-step[data-phase="${phase}"]`);
+  if (exact) return exact;
+  const order = Object.keys(PC);
+  const want  = order.indexOf(phase);
+  if (want === -1) return null;
+  let best = null, bestDist = Infinity;
+  document.querySelectorAll('.scroll-step').forEach(s => {
+    const oi = order.indexOf(s.dataset.phase);
+    if (oi === -1) return;
+    const dist = Math.abs(oi - want);
+    if (dist < bestDist) { best = s; bestDist = dist; }  // ties keep the earlier (document-order) step
+  });
+  return best;
+}
+
 function scrollToPhase(phase) {
-  const target = document.querySelector(`.scroll-step[data-phase="${phase}"]`)
-              || document.getElementById('scrollytelling');
+  const target = stepForPhase(phase) || document.getElementById('scrollytelling');
   if (!target) return;
   const legendH = document.getElementById('phase-legend')?.offsetHeight || 48;
   const y = target.getBoundingClientRect().top + window.scrollY - navHeight() - legendH - 16;
+  /* Pin the target step as active through the scroll — otherwise a long jump
+     (esp. up from the bottom of the page) lets the observer settle the
+     highlight on the previous step relative to the viewable area. */
+  if (target.classList.contains('scroll-step')) lockScrollyStep(target);
   window.scrollTo({ top: Math.max(y, 0), behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
 }
 
@@ -277,10 +301,11 @@ function initSectionNav() {
 
   const SECTION_SEL = '#lede, #scrollytelling, section.chart-section-bg, section:not([id]):not(.chart-section-bg), #sandbox, #resolution-footer';
 
-  const targets = () => {
-    const sel = window.innerWidth <= 900 ? SECTION_SEL + ', .scroll-step' : SECTION_SEL;
-    return Array.from(document.querySelectorAll(sel)); // document order
-  };
+  /* Steps are nav targets on every screen size so the arrows walk through the
+     map narrative step-by-step (on desktop the sticky map otherwise gets jumped
+     past in one leap, section-to-section, and never advances). */
+  const targets = () =>
+    Array.from(document.querySelectorAll(SECTION_SEL + ', .scroll-step')); // document order
 
   /* A step must clear the sticky map on mobile to be readable */
   const readingOffset = el => {
@@ -299,8 +324,12 @@ function initSectionNav() {
      so the arrows never leave the active step out of sync with the reading area */
   const goTo = t => {
     if (!t) return;
+    /* Freeze the scrolly observer and pin the step so an intermediate step
+       can't override it mid-scroll. On up-scroll the step above the target
+       dips into the top of the active zone last (the target rests ~14px below
+       the zone top) and would otherwise win, landing the map one step too high. */
+    if (t.el.classList.contains('scroll-step')) lockScrollyStep(t.el);
     scrollToY(t.y);
-    if (t.el.classList.contains('scroll-step') && typeof setActiveStep === 'function') setActiveStep(t.el);
   };
 
   down.addEventListener('click', () => {
@@ -426,6 +455,38 @@ function buildScrollSteps() {
 let setActiveStep = null;
 let _scrollyObserver = null;
 
+/* When the arrows or a phase pill drive a programmatic scroll we freeze the
+   observer and pin the destination step as active. Otherwise "last intersecting
+   step wins": on up-scroll the step just above the target clips into the top of
+   the active zone last (the target rests ~14px below the zone top) and on a long
+   jump (e.g. a pill click from the bottom of the page) an intermediate step
+   settles the highlight on the wrong section for the viewable area.
+   The target is re-asserted when the scroll settles (scrollend, with a timeout
+   fallback for browsers without it and for reduced-motion instant jumps) so a
+   scroll that outlasts the timeout still lands on the right step. */
+let _navScrollLock  = false;
+let _navLockTimer   = null;
+let _navLockRelease = null;
+
+function lockScrollyStep(target) {
+  _navScrollLock = true;
+  if (target && typeof setActiveStep === 'function') setActiveStep(target);
+  if (_navLockRelease) window.removeEventListener('scrollend', _navLockRelease);
+  clearTimeout(_navLockTimer);
+  _navLockRelease = () => {
+    clearTimeout(_navLockTimer);
+    window.removeEventListener('scrollend', _navLockRelease);
+    _navLockRelease = null;
+    /* re-assert in case the timeout released the lock mid-scroll and the
+       observer moved the highlight off target before it settled */
+    const cur = document.querySelector('.scroll-step.is-active');
+    if (target && cur !== target && typeof setActiveStep === 'function') setActiveStep(target);
+    _navScrollLock = false;
+  };
+  window.addEventListener('scrollend', _navLockRelease);
+  _navLockTimer = setTimeout(_navLockRelease, 1600);
+}
+
 /* Active zone for the observer. On mobile it must sit BELOW the sticky map,
    otherwise a step scrolling behind the map counts as "active" and the map
    shows a step that's above the one being read. */
@@ -466,6 +527,7 @@ function initScrollytelling() {
   const build = () => {
     if (_scrollyObserver) _scrollyObserver.disconnect();
     _scrollyObserver = new IntersectionObserver(entries => {
+      if (_navScrollLock) return;   // arrow nav in flight — highlight is set explicitly
       entries.forEach(entry => { if (entry.isIntersecting) setActiveStep(entry.target); });
     }, { threshold: 0, rootMargin: scrollyRootMargin() });
     steps.forEach(s => _scrollyObserver.observe(s));
@@ -1420,12 +1482,12 @@ document.addEventListener('DOMContentLoaded', () => {
   /* Table */
   buildGeoTable();
 
-  /* Prime first scroll step */
-  const firstStep = document.querySelector('.scroll-step');
-  if (firstStep && crisisData.scrollSteps?.length) {
-    firstStep.classList.add('is-active');
-    activateMapStep(crisisData.scrollSteps[0]);
-  }
+  /* Intentionally do NOT prime the first scroll step. The map overlay shows a
+     "Scroll to begin the timeline →" call-to-action until the reader engages;
+     priming half-way (is-active + marker, but not the overlay text) left the
+     first step highlighted while the overlay still read "scroll to begin",
+     which looked like a desync. The observer and section-nav activate the real
+     first step the moment it scrolls into the reading zone. */
 
   /* Theme toggle — runs last so charts + maps exist to re-theme */
   initThemeToggle();
