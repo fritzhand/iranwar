@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Design System Preview — The 2026 Iran War · Editorial</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=Libre+Franklin:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    /* surfaces */
+    --paper:#FBFAF8;
+    --surface:#FFFFFF;
+    --inset:#F4F2EC;
+    --rule:#E4E1DA;
+    --rule-strong:#CFC9BC;
+    /* ink */
+    --ink:#1A1A1A;
+    --body:#2B2B2B;
+    --muted:#6B6B6B;
+    --faint:#9A9488;
+    /* accents */
+    --crisis:#A61B1B;
+    --crisis-deep:#7A1010;
+    --crisis-tint:#F2E4E1;
+    --link:#326891;
+    --teal:#3E6B5E;
+    --gold:#B8860B;
+    /* type */
+    --display:'Fraunces', Georgia, 'Times New Roman', serif;
+    --read:'Newsreader', Georgia, serif;
+    --sans:'Libre Franklin', system-ui, sans-serif;
+    /* measure */
+    --measure:660px;
+    --breakout:1040px;
+  }
+  [data-theme="dark"] {
+    --paper:#14120E;
+    --surface:#1B1813;
+    --inset:#201C16;
+    --rule:#332E26;
+    --rule-strong:#463F33;
+    --ink:#F1ECE2;
+    --body:#DAD3C6;
+    --muted:#9E978A;
+    --faint:#6E675B;
+    --crisis:#E06A5E;
+    --crisis-deep:#C24A44;
+    --crisis-tint:#2E1B18;
+    --link:#8FB4D6;
+  }
+
+  * { box-sizing:border-box; margin:0; padding:0; }
+  html { scroll-behavior:smooth; }
+  body {
+    background:var(--paper);
+    color:var(--body);
+    font-family:var(--read);
+    font-size:19px;
+    line-height:1.75;
+    -webkit-font-smoothing:antialiased;
+    transition:background .3s ease, color .3s ease;
+  }
+  a { color:var(--link); text-decoration:none; }
+  a:hover { text-decoration:underline; text-underline-offset:3px; }
+
+  .wrap { max-width:var(--measure); margin:0 auto; padding:0 24px; }
+  .breakout { max-width:var(--breakout); margin-left:auto; margin-right:auto; padding:0 24px; }
+
+  /* ── furniture ── */
+  .kicker {
+    font-family:var(--sans);
+    font-size:12px;
+    font-weight:600;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--crisis);
+    display:flex; align-items:center; gap:12px;
+  }
+  .kicker::after { content:""; height:1px; flex:1; background:var(--rule); }
+  .kicker.plain::after { display:none; }
+  .rule { height:1px; background:var(--rule); border:0; }
+  .rule-ink { height:2px; background:var(--ink); border:0; }
+
+  /* ── preview scaffolding (NOT part of the design system) ── */
+  .demo-nav {
+    position:sticky; top:0; z-index:50;
+    background:color-mix(in srgb, var(--paper) 88%, transparent);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--rule);
+    display:flex; align-items:center; justify-content:space-between;
+    padding:12px 24px;
+    font-family:var(--sans);
+  }
+  .demo-nav b { font-weight:600; font-size:13px; letter-spacing:.02em; color:var(--ink); }
+  .demo-nav .tag { font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); }
+  .toggle {
+    font-family:var(--sans); font-size:12px; font-weight:500;
+    border:1px solid var(--rule-strong); background:var(--surface); color:var(--ink);
+    padding:7px 14px; border-radius:2px; cursor:pointer; letter-spacing:.04em;
+  }
+  .toggle:hover { border-color:var(--ink); }
+  .section-label {
+    font-family:var(--sans); font-size:11px; font-weight:600; letter-spacing:.16em;
+    text-transform:uppercase; color:var(--faint); margin:0 0 28px;
+  }
+  .band { padding:76px 0; border-top:1px solid var(--rule); }
+  .band:first-of-type { border-top:0; }
+
+  /* ── masthead / title page ── */
+  #masthead { padding:88px 0 72px; }
+  .masthead-kicker {
+    font-family:var(--sans); font-size:12.5px; font-weight:600;
+    letter-spacing:.18em; text-transform:uppercase; color:var(--crisis);
+    text-align:center; margin-bottom:30px;
+  }
+  h1.title {
+    font-family:var(--display);
+    font-optical-sizing:auto;
+    font-weight:600;
+    font-size:clamp(3rem, 8vw, 5.75rem);
+    line-height:.98;
+    letter-spacing:-.015em;
+    color:var(--ink);
+    text-align:center;
+    text-wrap:balance;
+  }
+  .dek {
+    font-family:var(--read);
+    font-size:clamp(1.2rem, 2.4vw, 1.5rem);
+    line-height:1.5;
+    color:var(--muted);
+    text-align:center;
+    max-width:640px;
+    margin:26px auto 0;
+    font-weight:400;
+  }
+  .byline {
+    font-family:var(--sans); font-size:13px; letter-spacing:.04em;
+    color:var(--body); text-align:center; margin-top:34px;
+  }
+  .byline .name { font-weight:600; color:var(--ink); text-transform:uppercase; letter-spacing:.08em; }
+  .byline .date { color:var(--muted); }
+  .masthead-rule { max-width:120px; margin:38px auto 0; }
+  .lead-figure { text-align:center; margin-top:48px; }
+  .lead-figure .n {
+    font-family:var(--display); font-weight:600; font-size:clamp(2.75rem,6vw,4rem);
+    color:var(--crisis); line-height:1; letter-spacing:-.02em;
+    font-variant-numeric:tabular-nums;
+  }
+  .lead-figure .cap {
+    font-family:var(--sans); font-size:12.5px; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--muted); margin-top:12px;
+  }
+
+  /* ── body prose ── */
+  .prose p { margin:0 0 1.4em; color:var(--body); }
+  .prose p.standfirst { font-size:1.28rem; line-height:1.6; color:var(--ink); }
+  .prose h2 {
+    font-family:var(--display); font-weight:600; color:var(--ink);
+    font-size:2.1rem; line-height:1.1; letter-spacing:-.01em; margin:1.5em 0 .5em;
+  }
+  .dropcap::first-letter {
+    font-family:var(--display); font-weight:600; color:var(--ink);
+    float:left; font-size:4.6rem; line-height:.82; padding:6px 12px 0 0;
+  }
+  sup.fn a { font-family:var(--sans); font-size:.62em; font-weight:600; color:var(--crisis); padding-left:1px; }
+
+  blockquote.pull {
+    margin:1.4em 0; padding:8px 0;
+    border-top:2px solid var(--ink); border-bottom:1px solid var(--rule);
+  }
+  blockquote.pull p {
+    font-family:var(--display); font-style:italic; font-weight:400;
+    font-size:1.7rem; line-height:1.28; color:var(--ink); margin:.5em 0;
+  }
+  blockquote.pull cite {
+    font-family:var(--sans); font-style:normal; font-size:12px; font-weight:600;
+    letter-spacing:.1em; text-transform:uppercase; color:var(--muted);
+  }
+
+  /* ── figure (breaks the column) ── */
+  figure.fig {
+    margin:56px auto;
+    background:var(--surface);
+    border-top:2px solid var(--ink);
+    border-bottom:1px solid var(--rule);
+    padding:22px 26px 18px;
+  }
+  .fig-kicker {
+    font-family:var(--sans); font-size:11px; font-weight:600; letter-spacing:.14em;
+    text-transform:uppercase; color:var(--muted); margin-bottom:6px;
+  }
+  .fig-title {
+    font-family:var(--display); font-weight:600; font-size:1.5rem; line-height:1.15;
+    color:var(--ink); margin-bottom:6px; letter-spacing:-.005em;
+  }
+  .fig-desc { font-family:var(--read); font-size:1rem; line-height:1.55; color:var(--muted); max-width:640px; margin-bottom:20px; }
+  .chart-holder { position:relative; }
+  .fig-source {
+    font-family:var(--sans); font-size:11.5px; line-height:1.5; color:var(--faint);
+    margin-top:18px; padding-top:12px; border-top:1px solid var(--rule);
+  }
+  .fig-source a { color:var(--muted); }
+  .ext { display:inline-block; width:9px; height:9px; vertical-align:baseline; margin-left:2px; stroke:currentColor; }
+
+  .legend { display:flex; gap:20px; flex-wrap:wrap; font-family:var(--sans); font-size:12px; color:var(--body); margin-bottom:14px; }
+  .legend span { display:inline-flex; align-items:center; gap:7px; }
+  .swatch-line { width:16px; height:3px; border-radius:1px; }
+
+  /* status badge */
+  .status {
+    display:inline-flex; align-items:center; gap:8px;
+    font-family:var(--sans); font-size:11.5px; font-weight:600; letter-spacing:.1em; text-transform:uppercase;
+    padding:6px 12px; border-radius:2px;
+  }
+  .status.closed { background:var(--crisis-tint); color:var(--crisis-deep); }
+  .status.open { background:color-mix(in srgb, var(--teal) 14%, var(--surface)); color:var(--teal); }
+  .status svg { width:13px; height:13px; stroke:currentColor; }
+
+  /* data callout row */
+  .figrow { display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--rule); border:1px solid var(--rule); margin:8px 0 0; }
+  .figrow .cell { background:var(--surface); padding:16px 18px; }
+  .figrow .n { font-family:var(--sans); font-weight:600; font-size:1.6rem; color:var(--ink); font-variant-numeric:tabular-nums; letter-spacing:-.01em; }
+  .figrow .n.crisis { color:var(--crisis); }
+  .figrow .l { font-family:var(--sans); font-size:11px; letter-spacing:.07em; text-transform:uppercase; color:var(--muted); margin-top:6px; line-height:1.4; }
+
+  /* ── specimen ── */
+  .spec { display:grid; gap:0; }
+  .spec-row { padding:26px 0; border-top:1px solid var(--rule); display:grid; grid-template-columns:150px 1fr; gap:24px; }
+  .spec-row:first-child { border-top:0; }
+  .spec-meta .fname { font-family:var(--sans); font-weight:600; font-size:14px; color:var(--ink); }
+  .spec-meta .frole { font-family:var(--sans); font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--faint); margin-top:4px; }
+  .spec-meta .fnote { font-family:var(--read); font-size:14px; color:var(--muted); margin-top:10px; line-height:1.5; }
+  .spec-display { font-family:var(--display); font-weight:600; font-size:2.4rem; color:var(--ink); line-height:1.05; }
+  .spec-read { font-family:var(--read); font-size:1.05rem; color:var(--body); line-height:1.7; }
+  .spec-sans { font-family:var(--sans); }
+  .spec-sans .big { font-size:1.1rem; font-weight:600; color:var(--ink); letter-spacing:.02em; }
+  .spec-nums { font-family:var(--sans); font-variant-numeric:tabular-nums; font-weight:600; font-size:1.7rem; color:var(--ink); letter-spacing:.01em; }
+
+  /* ── palette ── */
+  .swatches { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:14px; }
+  .sw { border:1px solid var(--rule); border-radius:3px; overflow:hidden; background:var(--surface); }
+  .sw .chip { height:76px; }
+  .sw .meta { padding:10px 12px; font-family:var(--sans); }
+  .sw .meta .nm { font-size:12.5px; font-weight:600; color:var(--ink); }
+  .sw .meta .hx { font-size:11.5px; color:var(--muted); letter-spacing:.03em; margin-top:2px; }
+
+  .components { display:flex; flex-wrap:wrap; gap:14px; align-items:center; margin-top:8px; }
+  .btn { font-family:var(--sans); font-size:13.5px; font-weight:600; letter-spacing:.03em; padding:11px 22px; border-radius:2px; cursor:pointer; border:1px solid transparent; }
+  .btn.primary { background:var(--ink); color:var(--paper); }
+  .btn.primary:hover { background:var(--crisis); }
+  .btn.secondary { background:transparent; color:var(--ink); border-color:var(--ink); }
+  .btn.ghost { background:transparent; color:var(--link); border-color:transparent; padding-left:0; }
+  .btn.ghost:hover { text-decoration:underline; text-underline-offset:3px; }
+
+  .alert { font-family:var(--read); font-size:15px; padding:14px 16px 14px 18px; border-left:3px solid; border-radius:0 2px 2px 0; background:var(--inset); }
+  .alert .h { font-family:var(--sans); font-weight:600; font-size:11px; letter-spacing:.1em; text-transform:uppercase; display:block; margin-bottom:4px; }
+  .alert.err { border-color:var(--crisis); } .alert.err .h { color:var(--crisis); }
+  .alert.info { border-color:var(--link); } .alert.info .h { color:var(--link); }
+  .alert.ok { border-color:var(--teal); } .alert.ok .h { color:var(--teal); }
+  .alert.warn { border-color:var(--gold); } .alert.warn .h { color:var(--gold); }
+  .alert-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+
+  /* ── geo table ── */
+  table.geo { width:100%; border-collapse:collapse; font-family:var(--read); }
+  table.geo th {
+    font-family:var(--sans); font-size:11px; font-weight:600; letter-spacing:.1em; text-transform:uppercase;
+    color:var(--muted); text-align:left; padding:0 16px 10px; border-bottom:2px solid var(--ink);
+  }
+  table.geo td { padding:16px 16px; border-bottom:1px solid var(--rule); vertical-align:top; font-size:15px; color:var(--body); }
+  table.geo td .cty { font-family:var(--display); font-weight:600; font-size:1.15rem; color:var(--ink); }
+  table.geo .net { font-family:var(--sans); font-weight:600; font-size:12px; letter-spacing:.06em; text-transform:uppercase; }
+  table.geo .net.neg { color:var(--crisis); }
+  table.geo .net.pos { color:var(--teal); }
+
+  /* ── references ── */
+  .refs { counter-reset:ref; }
+  .refs li { font-family:var(--read); font-size:14px; line-height:1.55; color:var(--muted); list-style:none; padding:10px 0; border-top:1px solid var(--rule); display:flex; gap:12px; }
+  .refs li::before { counter-increment:ref; content:counter(ref); font-family:var(--sans); font-weight:600; font-size:11px; color:var(--crisis); min-width:20px; }
+
+  footer.demo { padding:56px 24px 80px; border-top:1px solid var(--rule); text-align:center; }
+  footer.demo p { font-family:var(--sans); font-size:12px; letter-spacing:.06em; color:var(--faint); }
+
+  @media (max-width:640px) {
+    body { font-size:18px; }
+    .spec-row { grid-template-columns:1fr; gap:12px; }
+    .figrow { grid-template-columns:1fr 1fr; }
+    .alert-grid { grid-template-columns:1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="demo-nav">
+  <div><b>Design System Preview</b> <span class="tag">&nbsp;· Editorial / Document of Record</span></div>
+  <button class="toggle" id="themeToggle">Night mode</button>
+</div>
+
+<!-- ══ MASTHEAD ══ -->
+<header id="masthead">
+  <div class="wrap">
+    <div class="masthead-kicker">Geoeconomic Autopsy · Stepwell Centre for Asian Futures</div>
+    <h1 class="title">The 2026 Iran War</h1>
+    <p class="dek">How 112 days of conflict, a closed Strait of Hormuz, and 22,500 stranded mariners rewrote global energy markets — and what it meant for India.</p>
+    <p class="byline"><span class="name">By Sahasrik Ragani</span> &nbsp;·&nbsp; <span class="date">Ahmedabad University &nbsp;·&nbsp; 28 Feb – 20 Jun 2026</span></p>
+    <hr class="rule-ink masthead-rule" />
+    <div class="lead-figure">
+      <div class="n">$166.96</div>
+      <div class="cap">Oman crude peak · /bbl · all-time high, 19 Mar 2026</div>
+    </div>
+  </div>
+</header>
+
+<!-- ══ BODY PROSE ══ -->
+<section class="band">
+  <div class="wrap prose">
+    <p class="standfirst">For roughly one hundred of the conflict’s one hundred and twelve days, the single most important artery in the global oil trade went dark. This is an accounting of what that cost — measured in barrels, in rupees, and in people.</p>
+    <p class="dropcap">On the morning of 2 March 2026, the Islamic Revolutionary Guard Corps declared the Strait of Hormuz closed to commercial traffic. Within seventy-two hours the Oman/Dubai Mercantile Exchange marker — the benchmark that prices the crude already moving east of the blockade — had detached from every other grade in the world.<sup class="fn"><a href="#ref">1</a></sup> By 19 March it printed $166.96 a barrel, an all-time high, on a single Chinese panic bid.</p>
+    <p>The Reserve Bank of India sold roughly twenty billion dollars in one week to defend the rupee.<sup class="fn"><a href="#ref">2</a></sup> It was not enough. The currency kept falling through May, and the current-account arithmetic that underwrites the entire Indian growth story began, quietly, to break.</p>
+
+    <blockquote class="pull">
+      <p>“Every ten dollars a barrel, sustained, widens India’s current-account deficit by about fifty basis points. The Strait did not need to stay shut for long to do lasting damage.”</p>
+      <cite>Morgan Stanley India · Oil Sensitivity Model</cite>
+    </blockquote>
+
+    <p>What follows is the record: the market data, the shipping data, and the macroeconomic data, each tied to a dated institutional source. No interpretation is offered where the numbers speak plainly.</p>
+  </div>
+
+  <!-- FIGURE breaking the column -->
+  <div class="breakout">
+    <figure class="fig">
+      <div class="fig-kicker">Energy Markets · Fig. 1</div>
+      <div class="fig-title">Crude Benchmark Divergence — Brent · WTI · Oman/DME</div>
+      <div class="fig-desc">As Hormuz closed, the Asian Oman marker detached from WTI, opening a physical-scarcity premium of nearly $70 a barrel at the peak.</div>
+      <div class="legend">
+        <span><span class="swatch-line" style="background:var(--crisis)"></span>Oman / DME</span>
+        <span><span class="swatch-line" style="background:var(--ink)"></span>Brent</span>
+        <span><span class="swatch-line" style="background:var(--link)"></span>WTI</span>
+      </div>
+      <div class="chart-holder">
+        <svg viewBox="0 0 900 300" width="100%" height="300" role="img" aria-label="Line chart of crude benchmarks">
+          <!-- gridlines -->
+          <line x1="60" y1="40" x2="880" y2="40" stroke="var(--rule)" stroke-width="1"/>
+          <line x1="60" y1="110" x2="880" y2="110" stroke="var(--rule)" stroke-width="1"/>
+          <line x1="60" y1="180" x2="880" y2="180" stroke="var(--rule)" stroke-width="1"/>
+          <line x1="60" y1="250" x2="880" y2="250" stroke="var(--rule-strong)" stroke-width="1"/>
+          <!-- y labels -->
+          <text x="52" y="44" text-anchor="end" font-family="Libre Franklin" font-size="11" fill="var(--faint)">$170</text>
+          <text x="52" y="114" text-anchor="end" font-family="Libre Franklin" font-size="11" fill="var(--faint)">$130</text>
+          <text x="52" y="184" text-anchor="end" font-family="Libre Franklin" font-size="11" fill="var(--faint)">$90</text>
+          <text x="52" y="254" text-anchor="end" font-family="Libre Franklin" font-size="11" fill="var(--faint)">$50</text>
+          <!-- Oman (crisis) -->
+          <polyline fill="none" stroke="var(--crisis)" stroke-width="2.5" points="60,225 160,215 260,120 330,38 400,150 500,175 620,205 720,215 880,232"/>
+          <circle cx="330" cy="38" r="3.5" fill="var(--crisis)"/>
+          <text x="330" y="28" text-anchor="middle" font-family="Libre Franklin" font-size="11" font-weight="600" fill="var(--crisis)">$166.96</text>
+          <!-- Brent -->
+          <polyline fill="none" stroke="var(--ink)" stroke-width="2" points="60,232 160,224 260,150 330,96 400,168 500,190 620,214 720,224 880,238"/>
+          <!-- WTI -->
+          <polyline fill="none" stroke="var(--link)" stroke-width="2" points="60,236 160,230 260,178 330,166 400,196 500,206 620,224 720,232 880,244"/>
+          <!-- x labels -->
+          <text x="60" y="278" font-family="Libre Franklin" font-size="11" fill="var(--faint)">28 Feb</text>
+          <text x="330" y="278" text-anchor="middle" font-family="Libre Franklin" font-size="11" fill="var(--faint)">19 Mar</text>
+          <text x="880" y="278" text-anchor="end" font-family="Libre Franklin" font-size="11" fill="var(--faint)">20 Jun</text>
+        </svg>
+      </div>
+      <div class="figrow">
+        <div class="cell"><div class="n crisis">$166.96</div><div class="l">Oman peak · /bbl</div></div>
+        <div class="cell"><div class="n">$96.84</div><div class="l">WTI peak · /bbl</div></div>
+        <div class="cell"><div class="n">~4</div><div class="l">Hormuz transits/day at trough</div></div>
+        <div class="cell"><div class="n crisis">−68%</div><div class="l">Gulf→India remittances</div></div>
+      </div>
+      <div class="fig-source">
+        Sources: EIA Daily Spot Price Series · Reuters · Bloomberg ·
+        <a href="#">Argus Media, Oman ATH (19 Mar 2026)<svg class="ext" viewBox="0 0 24 24" fill="none" stroke-width="2.5"><path d="M7 17L17 7M17 7H8M17 7v9"/></svg></a>
+      </div>
+    </figure>
+  </div>
+</section>
+
+<!-- ══ STATUS + TABLE ══ -->
+<section class="band">
+  <div class="breakout">
+    <p class="section-label">Component — status badge &amp; geopolitical cost matrix</p>
+    <div style="display:flex; gap:14px; margin-bottom:28px; flex-wrap:wrap;">
+      <span class="status closed">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        Hormuz: Closed
+      </span>
+      <span class="status open">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        Hormuz: Open
+      </span>
+    </div>
+    <table class="geo">
+      <thead><tr><th>Country</th><th>Role</th><th>Cost &amp; impact</th><th style="text-align:right">Net</th></tr></thead>
+      <tbody>
+        <tr><td><span class="cty">India</span></td><td>Importer</td><td>RBI burned ~$20B defending the rupee; CAD widened, remittances collapsed.</td><td style="text-align:right"><span class="net neg">Loss</span></td></tr>
+        <tr><td><span class="cty">Qatar</span></td><td>LNG exporter</td><td>Force majeure at Ras Laffan; 20% of global LNG stranded behind the strait.</td><td style="text-align:right"><span class="net neg">Loss</span></td></tr>
+        <tr><td><span class="cty">United States</span></td><td>Belligerent</td><td>Direct military expenditure; strategic-reserve drawdown to steady prices.</td><td style="text-align:right"><span class="net neg">Loss</span></td></tr>
+        <tr><td><span class="cty">Russia</span></td><td>Non-Hormuz exporter</td><td>Urals discount narrowed as buyers scrambled for any non-Gulf barrel.</td><td style="text-align:right"><span class="net pos">Gain</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ══ TYPE SPECIMEN ══ -->
+<section class="band">
+  <div class="breakout">
+    <p class="section-label">Typography — the editorial triad</p>
+    <div class="spec">
+      <div class="spec-row">
+        <div class="spec-meta">
+          <div class="fname">Fraunces</div>
+          <div class="frole">Display / Masthead</div>
+          <div class="fnote">High-contrast old-style serif. Engraved character at title sizes — the document-of-record face.</div>
+        </div>
+        <div class="spec-display">A Geoeconomic Autopsy<br><span style="font-style:italic; font-weight:400; color:var(--crisis)">One hundred dark days.</span></div>
+      </div>
+      <div class="spec-row">
+        <div class="spec-meta">
+          <div class="fname">Newsreader</div>
+          <div class="frole">Body / Long-form</div>
+          <div class="fnote">Built for on-screen news reading. Calm and legible under the dramatic headline.</div>
+        </div>
+        <div class="spec-read">The benchmark that prices crude already moving east of the blockade detached from every other grade in the world. By 19 March it printed a figure no trader had seen before — and the arithmetic underwriting India’s growth story began, quietly, to break.</div>
+      </div>
+      <div class="spec-row">
+        <div class="spec-meta">
+          <div class="fname">Libre Franklin</div>
+          <div class="frole">Labels / UI / Kickers</div>
+          <div class="fnote">Open Franklin Gothic revival — the newspaper sans. Kickers, captions, nav, table headers.</div>
+        </div>
+        <div class="spec-sans">
+          <div class="big">ENERGY MARKETS · PHASE 01</div>
+          <div style="font-size:13px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin-top:8px;">Source · Reserve Bank of India · Weekly Statistical Supplement</div>
+        </div>
+      </div>
+      <div class="spec-row">
+        <div class="spec-meta">
+          <div class="fname">Libre Franklin</div>
+          <div class="frole">Data / Tabular nums</div>
+          <div class="fnote">tabular-nums for figures and tables — numbers align, no monospace needed.</div>
+        </div>
+        <div class="spec-nums">$166.96 &nbsp; 22,500 &nbsp; ₹96.844 &nbsp; −40% &nbsp; $730.0B</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ PALETTE ══ -->
+<section class="band">
+  <div class="breakout">
+    <p class="section-label">Color — restrained, one crisis accent</p>
+    <div class="swatches" style="margin-bottom:36px;">
+      <div class="sw"><div class="chip" style="background:#FBFAF8; border-bottom:1px solid var(--rule)"></div><div class="meta"><div class="nm">Paper</div><div class="hx">#FBFAF8</div></div></div>
+      <div class="sw"><div class="chip" style="background:#1A1A1A"></div><div class="meta"><div class="nm">Ink</div><div class="hx">#1A1A1A</div></div></div>
+      <div class="sw"><div class="chip" style="background:#A61B1B"></div><div class="meta"><div class="nm">Crisis / Oxblood</div><div class="hx">#A61B1B</div></div></div>
+      <div class="sw"><div class="chip" style="background:#326891"></div><div class="meta"><div class="nm">Link Blue</div><div class="hx">#326891</div></div></div>
+      <div class="sw"><div class="chip" style="background:#3E6B5E"></div><div class="meta"><div class="nm">Resolution Teal</div><div class="hx">#3E6B5E</div></div></div>
+      <div class="sw"><div class="chip" style="background:#B8860B"></div><div class="meta"><div class="nm">Caution Gold</div><div class="hx">#B8860B</div></div></div>
+      <div class="sw"><div class="chip" style="background:#9A9488"></div><div class="meta"><div class="nm">Faint / Baseline</div><div class="hx">#9A9488</div></div></div>
+      <div class="sw"><div class="chip" style="background:linear-gradient(90deg,#F2E4E1,#A61B1B,#7A1010)"></div><div class="meta"><div class="nm">Escalation ramp</div><div class="hx">replaces viridis</div></div></div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:40px;">
+      <div>
+        <p class="kicker plain" style="margin-bottom:16px;">Components</p>
+        <div class="components">
+          <button class="btn primary">Read the full record</button>
+          <button class="btn secondary">Methodology</button>
+          <button class="btn ghost">Download data →</button>
+        </div>
+        <div style="margin-top:24px; font-family:var(--read); font-size:15px;">
+          Inline links read like <a href="#">the New York Times link blue</a>, and crisis figures like
+          <strong style="color:var(--crisis); font-family:var(--sans); font-variant-numeric:tabular-nums;">$166.96</strong> carry the oxblood accent.
+        </div>
+      </div>
+      <div>
+        <p class="kicker plain" style="margin-bottom:16px;">Alerts / callouts</p>
+        <div class="alert-grid">
+          <div class="alert err"><span class="h">Crisis</span>Hormuz closed — 4 transits/day.</div>
+          <div class="alert info"><span class="h">Note</span>RBI reference rate, 12:00 IST.</div>
+          <div class="alert ok"><span class="h">Resolution</span>First India-bound transits, 20 Jun.</div>
+          <div class="alert warn"><span class="h">Caution</span>Figure is a stress-test estimate.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ REFERENCES ══ -->
+<section class="band" id="ref">
+  <div class="wrap">
+    <p class="kicker" style="margin-bottom:22px;">References — a document you can cite</p>
+    <ol class="refs">
+      <li>Argus Media, “Oman crude hits all-time high,” 19 March 2026. Daily assessment, USD/bbl.</li>
+      <li>Reuters, “RBI in record intervention as rupee slides,” 12 March 2026; RBI Weekly Statistical Supplement.</li>
+      <li>US CENTCOM / Gen. Caine, briefing of 6 May 2026: 22,500 mariners on 1,550+ vessels.</li>
+    </ol>
+  </div>
+</section>
+
+<footer class="demo">
+  <p>PREVIEW ONLY · FONTS: FRAUNCES · NEWSREADER · LIBRE FRANKLIN · NOT THE LIVE SITE</p>
+</footer>
+
+<script>
+  const btn = document.getElementById('themeToggle');
+  const root = document.documentElement;
+  btn.addEventListener('click', () => {
+    const dark = root.getAttribute('data-theme') === 'dark';
+    root.setAttribute('data-theme', dark ? 'light' : 'dark');
+    btn.textContent = dark ? 'Night mode' : 'Day mode';
+  });
+</script>
+</body>
+</html>
