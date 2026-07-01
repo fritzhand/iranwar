@@ -32,12 +32,13 @@
   <meta name="twitter:image" content="https://fritzhand.github.io/iranwar/assets/og-image.png" />
   <meta name="twitter:image:alt" content="The 2026 Iran War: A Geoeconomic Autopsy — Stepwell Centre for Asian Futures" />
 
-  <!-- Set theme before paint to avoid a flash -->
+  <!-- Set theme before paint to avoid a flash. Light is the default "document
+       of record" view; dark is opt-in via the toggle and remembered thereafter
+       (we intentionally do NOT follow the OS prefers-color-scheme). -->
   <script>
     (function () {
       try {
-        var t = localStorage.getItem('iw-theme') ||
-                (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        var t = localStorage.getItem('iw-theme') || 'light';
         document.documentElement.setAttribute('data-theme', t);
       } catch (e) { document.documentElement.setAttribute('data-theme', 'light'); }
     })();
