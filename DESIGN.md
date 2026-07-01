@@ -16,25 +16,25 @@
 - **Reference feel:** NYT article/exposé — dramatic serif headline, calm serif body, Franklin sans furniture, narrow reading measure, figures that break the column.
 
 ## Typography
-The editorial triad. This is the soul of the redesign.
-- **Display/Hero:** **Fraunces** (variable, `font-optical-sizing:auto`, wght 600) — high-contrast old-style serif; engraved, document-of-record masthead character at title sizes. The memorable face.
-- **Body:** **Newsreader** (variable, optical text sizes, wght 400) — built for on-screen news reading; calm and legible under the dramatic headline.
-- **UI/Labels/Kickers/Captions:** **Libre Franklin** (wght 400/500/600/700) — open-source Franklin Gothic revival, the newspaper sans. Section kickers, chart labels, bylines, table headers, source lines. Use uppercase + letter-spacing for kickers.
-- **Data/Tables:** **Libre Franklin** with `font-variant-numeric:tabular-nums`. Numbers align without a monospace.
+Serif display + sans body. Chosen in a live font playground (see below).
+- **Display/Hero/Headlines:** **Crimson Pro** (wght 400/500/600/700, + italic) — a refined book serif with high legibility at large sizes; carries the masthead, section titles, figure titles, drop cap, and pull quotes.
+- **Body / reading:** **Work Sans** (wght 400/500/600/700) — a clean, slightly humanist grotesque; calm long-form reading under the serif headlines.
+- **UI/Labels/Kickers/Captions:** **Work Sans** — same family as body; section kickers, chart labels, bylines, table headers, source lines. Use uppercase + letter-spacing for kickers.
+- **Data/Tables:** **Work Sans** with `font-variant-numeric:tabular-nums`. Numbers align without a monospace.
 - **Code:** n/a (no code surfaces). If ever needed: JetBrains Mono.
-- **Retired:** Space Grotesk and Space Mono are removed entirely. The mono "receipts" signal is replaced by a real citation/footnote apparatus.
+- **Retired:** Space Grotesk + Space Mono (original), then Fraunces + Newsreader + Libre Franklin (first editorial pass) — superseded by Crimson Pro + Work Sans after playground review.
 - **Loading:** Google Fonts —
-  `https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=Libre+Franklin:wght@400;500;600;700&display=swap`
-- **Scale** (fluid where noted):
-  - Masthead H1 (Fraunces 600): `clamp(3rem, 8vw, 5.75rem)` / line-height .98 / tracking -.015em
-  - Section H2 (Fraunces 600): 2.1rem / 1.1
-  - H3 (Fraunces 600): 1.5rem
-  - Dek/standfirst (Newsreader): `clamp(1.2rem, 2.4vw, 1.5rem)` / 1.5, color muted
-  - Body (Newsreader): 1.1875rem (19px) / 1.75, color body
-  - Pull quote (Fraunces italic 400): 1.7rem / 1.28
-  - Kicker (Libre Franklin 600): 12px / uppercase / tracking .14em
-  - Caption & source (Libre Franklin): 11.5–13px, color muted/faint
-  - Data numbers (Libre Franklin 600, tabular-nums): sized per context
+  `https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Work+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap`
+- **Scale** (fluid where noted; roles unchanged, `--font-display` = Crimson Pro, `--font-read`/`--font-sans` = Work Sans):
+  - Masthead H1 (Crimson Pro 600): `clamp(3rem, 8vw, 5.75rem)` / line-height .98 / tracking -.015em
+  - Section H2 (Crimson Pro 600): 2.1rem / 1.1
+  - H3 (Crimson Pro 600): 1.5rem
+  - Dek/standfirst (Work Sans): `clamp(1.2rem, 2.4vw, 1.5rem)` / 1.5, color muted
+  - Body (Work Sans): 1.1875rem (19px) / 1.75, color body
+  - Pull quote (Crimson Pro italic 400): 1.7rem / 1.28
+  - Kicker (Work Sans 600): 12px / uppercase / tracking .14em
+  - Caption & source (Work Sans): 11.5–13px, color muted/faint
+  - Data numbers (Work Sans 600, tabular-nums): sized per context
 
 ## Color
 - **Approach:** Restrained — paper + ink + one crisis accent + a link blue. Color is rare and meaningful.

@@ -47,23 +47,30 @@ follow the reasoning at each step.
 - `CHANGELOG.md` — this document.
 
 ### Design decisions
-- **Typography:** retire Space Grotesk / Space Mono for the editorial triad —
-  **Fraunces** (display/masthead), **Newsreader** (body), **Libre Franklin**
-  (kickers, labels, captions, tabular-nums data).
 - **Color:** replace viridis neon with paper + ink and a single restrained
   **oxblood `#A61B1B`** crisis accent, plus an NYT link blue `#326891`; a warm
   single-hue escalation ramp replaces the purple→yellow ramp.
 - **Icons:** no emoji — clean line SVG icons (Lucide/Feather style) only where
   functional.
-- **Map:** switch CartoDB Dark Matter tiles → Positron (light) to match.
+- **Map:** switch CartoDB Dark Matter tiles → Positron (light) to match; a
+  brightness filter lifts borders/labels in dark mode.
 
-### Planned (next steps on this branch)
-- Restyle `css/styles.css` to the new tokens (light editorial), keeping the
-  scrollytelling, sandbox, and charts intact.
-- Restructure `index.html` to the editorial layout: title-page masthead,
-  narrow reading measure with column-breaking figures, kickers, drop cap,
-  pull quotes, and a references apparatus.
-- Recolor the Chart.js / D3 / Leaflet visualizations to the editorial palette
-  and switch to light map tiles.
-- Remove emoji; add line SVG icons for source links and Hormuz status.
-- QA against `DESIGN.md` and check `prefers-reduced-motion`.
+### Typography evolution
+The header/body pairing went through three iterations, kept legible here:
+1. **Original** — Space Grotesk + Space Mono (the dark data-terminal look).
+2. **First editorial pass** — Fraunces (display) + Newsreader (body) + Libre
+   Franklin (UI): a true newspaper triad.
+3. **Final** — **Crimson Pro** (headers) + **Work Sans** (body). Candidate
+   pairings were loaded into a live typography playground (built in Gemini,
+   kept at `design/editorial-typography-playground.tsx`), viewed against the
+   real masthead / body / kicker roles, and Crimson Pro + Work Sans was chosen
+   for its cleaner serif-display vs. humanist-sans contrast. In the tokens,
+   `--font-display` = Crimson Pro and `--font-read` / `--font-sans` = Work Sans.
+
+### Also shipped on this branch (beyond the initial redesign)
+- Full light/dark ("night mode") toggle with chart + map re-theming.
+- Sticky, clickable conflict-phase navigation with active-step highlighting.
+- Author + fork/redesign credits with portraits (Sahasrik Ragani in the
+  byline; Jeremy Fritzhand in the footer) and GitHub/LinkedIn links.
+- Mobile pass: stacked header, single-row phase legend, sticky scrollytelling
+  map, and a floating up/down section-nav ("map tab") assist.
