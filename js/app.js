@@ -295,14 +295,24 @@ function initSectionNav() {
   const destOf   = el => el.getBoundingClientRect().top + window.scrollY - readingOffset(el);
   const scrollToY = y => window.scrollTo({ top: Math.max(y, 0), behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
 
+  /* scroll to a target and, if it's a step, sync the map/highlight immediately
+     so the arrows never leave the active step out of sync with the reading area */
+  const goTo = t => {
+    if (!t) return;
+    scrollToY(t.y);
+    if (t.el.classList.contains('scroll-step') && typeof setActiveStep === 'function') setActiveStep(t.el);
+  };
+
   down.addEventListener('click', () => {
-    const next = targets().map(destOf).filter(y => y > window.scrollY + 24).sort((a, b) => a - b)[0];
-    scrollToY(next != null ? next : document.body.scrollHeight);
+    const next = targets().map(el => ({ el, y: destOf(el) }))
+      .filter(o => o.y > window.scrollY + 24).sort((a, b) => a.y - b.y)[0];
+    next ? goTo(next) : scrollToY(document.body.scrollHeight);
   });
 
   up.addEventListener('click', () => {
-    const prev = targets().map(destOf).filter(y => y < window.scrollY - 24).sort((a, b) => b - a)[0];
-    scrollToY(prev != null ? prev : 0);
+    const prev = targets().map(el => ({ el, y: destOf(el) }))
+      .filter(o => o.y < window.scrollY - 24).sort((a, b) => b.y - a.y)[0];
+    prev ? goTo(prev) : scrollToY(0);
   });
 
   const onScroll = () => {
@@ -412,6 +422,24 @@ function buildScrollSteps() {
   });
 }
 
+/* Exposed so the section-nav can activate the exact step it jumps to */
+let setActiveStep = null;
+let _scrollyObserver = null;
+
+/* Active zone for the observer. On mobile it must sit BELOW the sticky map,
+   otherwise a step scrolling behind the map counts as "active" and the map
+   shows a step that's above the one being read. */
+function scrollyRootMargin() {
+  if (window.innerWidth <= 900) {
+    const legend = document.getElementById('phase-legend');
+    const fig    = document.querySelector('.sticky-figure');
+    const top    = navHeight() + (legend?.offsetHeight || 0) + (fig?.offsetHeight || 0);
+    const bottom = Math.max(window.innerHeight - top - Math.round(window.innerHeight * 0.22), 60);
+    return `-${top}px 0px -${bottom}px 0px`;
+  }
+  return '-8% 0px -28% 0px';
+}
+
 function initScrollytelling() {
   const steps = document.querySelectorAll('.scroll-step');
   if (!steps.length) return;
@@ -421,26 +449,32 @@ function initScrollytelling() {
   const oBrent    = document.getElementById('map-overlay-brent');
   const oOman     = document.getElementById('map-overlay-oman');
 
-  const io = new IntersectionObserver(entries => {
-    entries.forEach(entry => {
-      if (!entry.isIntersecting) return;
-      const idx  = +entry.target.dataset.idx;
-      const step = (crisisData.scrollSteps || [])[idx];
-      if (!step) return;
+  setActiveStep = target => {
+    const idx  = +target.dataset.idx;
+    const step = (crisisData.scrollSteps || [])[idx];
+    if (!step) return;
+    steps.forEach(s => s.classList.remove('is-active'));
+    target.classList.add('is-active');
+    highlightPhasePill(step.phase);
+    activateMapStep(step);
+    if (oDate)     oDate.textContent     = `${step.date} · ${(step.phase||'').toUpperCase()}`;
+    if (oHeadline) oHeadline.textContent = step.headline;
+    if (oBrent)    oBrent.textContent    = `$${step.metric_brent}`;
+    if (oOman)     oOman.textContent     = `$${step.metric_oman}`;
+  };
 
-      steps.forEach(s => s.classList.remove('is-active'));
-      entry.target.classList.add('is-active');
-      highlightPhasePill(step.phase);
-      activateMapStep(step);
+  const build = () => {
+    if (_scrollyObserver) _scrollyObserver.disconnect();
+    _scrollyObserver = new IntersectionObserver(entries => {
+      entries.forEach(entry => { if (entry.isIntersecting) setActiveStep(entry.target); });
+    }, { threshold: 0, rootMargin: scrollyRootMargin() });
+    steps.forEach(s => _scrollyObserver.observe(s));
+  };
+  build();
 
-      if (oDate)     oDate.textContent     = `${step.date} · ${(step.phase||'').toUpperCase()}`;
-      if (oHeadline) oHeadline.textContent = step.headline;
-      if (oBrent)    oBrent.textContent    = `$${step.metric_brent}`;
-      if (oOman)     oOman.textContent     = `$${step.metric_oman}`;
-    });
-  }, { threshold:0.42, rootMargin:'-8% 0px -28% 0px' });
-
-  steps.forEach(s => io.observe(s));
+  /* the active zone depends on nav + map heights — rebuild on resize */
+  let rt;
+  window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(build, 200); }, { passive: true });
 }
 
 /* ═══════════════════════════════════════════════════════════════
