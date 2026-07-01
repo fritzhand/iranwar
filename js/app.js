@@ -102,12 +102,54 @@ function buildPhaseLegend() {
   const c = document.getElementById('phase-pills-container');
   if (!c) return;
   Object.entries(PC).forEach(([phase, color]) => {
-    const el = document.createElement('span');
+    const el = document.createElement('a');
     el.className = 'phase-pill';
-    el.style.cssText = 'background:#F4F2EC;color:#1A1A1A;border:1px solid #E4E1DA';
+    el.dataset.phase = phase;
+    el.setAttribute('role', 'link');
+    el.setAttribute('tabindex', '0');
+    el.href = '#scrollytelling';
+    el.title = `Jump to ${phase.replace(/\d/g,'').toUpperCase()} in the timeline`;
     el.innerHTML = `<span class="dot" style="background:${color};opacity:1"></span>${phase.replace(/\d/g,'').toUpperCase()}`;
+    el.addEventListener('click', e => { e.preventDefault(); scrollToPhase(phase); });
+    el.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); scrollToPhase(phase); }
+    });
     c.appendChild(el);
   });
+}
+
+/* Smooth-scroll to the first timeline step of a given phase */
+function prefersReducedMotion() {
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+function scrollToPhase(phase) {
+  const target = document.querySelector(`.scroll-step[data-phase="${phase}"]`)
+              || document.getElementById('scrollytelling');
+  if (!target) return;
+  const navH    = 56;   // main nav
+  const legendH = document.getElementById('phase-legend')?.offsetHeight || 48;
+  const y = target.getBoundingClientRect().top + window.scrollY - navH - legendH - 16;
+  window.scrollTo({ top: Math.max(y, 0), behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
+}
+
+/* Highlight the phase pill matching the active timeline step */
+function highlightPhasePill(phase) {
+  document.querySelectorAll('#phase-pills-container .phase-pill').forEach(p => {
+    p.classList.toggle('is-current', p.dataset.phase === phase);
+  });
+}
+
+/* Toggle a shadow on the phase legend once it sticks under the nav */
+function initStickyLegend() {
+  const sentinel = document.getElementById('phase-legend-sentinel');
+  const legend   = document.getElementById('phase-legend');
+  if (!sentinel || !legend || !('IntersectionObserver' in window)) return;
+  const io = new IntersectionObserver(
+    ([entry]) => legend.classList.toggle('is-stuck', !entry.isIntersecting),
+    { rootMargin: '-56px 0px 0px 0px', threshold: 0 }
+  );
+  io.observe(sentinel);
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -187,6 +229,7 @@ function buildScrollSteps() {
     const el = document.createElement('div');
     el.className = 'scroll-step';
     el.dataset.idx = idx;
+    el.dataset.phase = step.phase || '';
     el.style.borderLeftColor = color;
     el.innerHTML = `
       <div class="step-phase-date" style="color:${color}">
@@ -224,6 +267,7 @@ function initScrollytelling() {
 
       steps.forEach(s => s.classList.remove('is-active'));
       entry.target.classList.add('is-active');
+      highlightPhasePill(step.phase);
       activateMapStep(step);
 
       if (oDate)     oDate.textContent     = `${step.date} · ${(step.phase||'').toUpperCase()}`;
@@ -1123,6 +1167,7 @@ document.addEventListener('DOMContentLoaded', () => {
   /* Core UI */
   initProgressBar();
   buildPhaseLegend();
+  initStickyLegend();
 
   /* Maps */
   initScrollMap();
