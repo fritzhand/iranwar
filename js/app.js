@@ -258,23 +258,45 @@ function initStickyLegend() {
   io.observe(sentinel);
 }
 
-/* Floating "next section" scroll assist (bottom-right) */
+/* Floating scroll assist (bottom-right). On mobile it advances through each
+   scrollytelling step (map tab); on desktop it jumps section to section. */
 function initSectionNav() {
   const btn = document.getElementById('section-nav');
   if (!btn) return;
-  const sections = Array.from(document.querySelectorAll('#hero, #lede, #scrollytelling, section.chart-section-bg, section:not([id]):not(.chart-section-bg), #sandbox, #resolution-footer'));
 
-  const goto = el => {
-    const y = el.getBoundingClientRect().top + window.scrollY - navHeight() - 8;
-    window.scrollTo({ top: Math.max(y, 0), behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
+  const SECTION_SEL = '#lede, #scrollytelling, section.chart-section-bg, section:not([id]):not(.chart-section-bg), #sandbox, #resolution-footer';
+
+  const targets = () => {
+    const sel = window.innerWidth <= 900 ? SECTION_SEL + ', .scroll-step' : SECTION_SEL;
+    return Array.from(document.querySelectorAll(sel)); // document order
   };
 
+  /* A step must clear the sticky map on mobile to be readable */
+  const readingOffset = el => {
+    if (el.classList.contains('scroll-step') && window.innerWidth <= 900) {
+      const legend = document.getElementById('phase-legend');
+      const fig    = document.querySelector('.sticky-figure');
+      return navHeight() + (legend?.offsetHeight || 0) + (fig?.offsetHeight || 0) + 14;
+    }
+    return navHeight() + 8;
+  };
+
+  const destOf = el => el.getBoundingClientRect().top + window.scrollY - readingOffset(el);
+
   btn.addEventListener('click', () => {
-    const atBottom = (window.innerHeight + window.scrollY) >= document.body.scrollHeight - 4;
-    if (atBottom) { window.scrollTo({ top: 0, behavior: prefersReducedMotion() ? 'auto' : 'smooth' }); return; }
-    const threshold = window.scrollY + navHeight() + 12;
-    const next = sections.find(s => (s.getBoundingClientRect().top + window.scrollY) > threshold);
-    goto(next || document.getElementById('resolution-footer'));
+    if ((window.innerHeight + window.scrollY) >= document.body.scrollHeight - 4) {
+      window.scrollTo({ top: 0, behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
+      return;
+    }
+    // pick the next target whose scroll destination is genuinely below us
+    const next = targets()
+      .map(destOf)
+      .filter(y => y > window.scrollY + 24)
+      .sort((a, b) => a - b)[0];
+    const y = next != null
+      ? next
+      : Math.max(destOf(document.getElementById('resolution-footer')), window.scrollY + 24);
+    window.scrollTo({ top: Math.max(y, 0), behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
   });
 
   const onScroll = () => {
