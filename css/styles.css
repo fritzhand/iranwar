@@ -1514,7 +1514,10 @@ input[type="range"].crisis-slider::-moz-range-thumb {
   .nav-phase-pill { display: none; }
   .geo-table { font-size: 14px; }
   .geo-table th, .geo-table td { padding: 10px 8px; }
-  .section-nav { right: 14px; bottom: 14px; width: 44px; height: 44px; }
+  /* size the buttons, not the flex container — sizing the container squashed
+     the two stacked 46px buttons into a 44px box and rendered them as ovals */
+  .section-nav { right: 14px; bottom: 14px; }
+  .section-nav-btn { width: 44px; height: 44px; }
 }
 
 /* ─── CSS SCROLL-DRIVEN REVEAL (Chrome 115+, Safari 26+) ─── */
