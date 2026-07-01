@@ -195,8 +195,8 @@ function buildScrollSteps() {
       <h3 class="step-headline">${step.headline}</h3>
       <p class="step-narrative">${step.narrative}</p>
       <div class="step-metrics">
-        <div class="step-metric-chip">🛢 Brent <strong>$${step.metric_brent}</strong>/bbl</div>
-        <div class="step-metric-chip">🛢 Oman <strong>$${step.metric_oman}</strong>/bbl</div>
+        <div class="step-metric-chip"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/></svg>Brent <strong>$${step.metric_brent}</strong>/bbl</div>
+        <div class="step-metric-chip"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/></svg>Oman <strong>$${step.metric_oman}</strong>/bbl</div>
         ${step.metric_note ? `<div class="step-metric-chip"><em style="color:#6B6B6B">${step.metric_note}</em></div>` : ''}
       </div>
       <p class="step-source">
@@ -317,8 +317,8 @@ function updateSlider(day) {
   const label  = oil?.date || 'Feb 28';
 
   /* Date label + badge */
-  const dEl = document.getElementById('slider-date-label');
-  if (dEl) dEl.textContent = `📅 ${label} · Day ${day}`;
+  const dEl = document.getElementById('slider-date-text') || document.getElementById('slider-date-label');
+  if (dEl) dEl.textContent = `${label} · Day ${day}`;
 
   const badge = document.getElementById('hormuz-badge');
   if (badge) {
