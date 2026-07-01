@@ -83,6 +83,103 @@ function mkScale(overrides = {}) {
   };
 }
 
+/* ── Theme (light / dark) ── */
+const CHARTS = [];
+function mkChart(ctx, cfg) {
+  const c = new Chart(ctx, cfg);
+  CHARTS.push(c);
+  return c;
+}
+
+let scrollTileLayer  = null;
+let sandboxTileLayer = null;
+
+function isDark() {
+  return document.documentElement.getAttribute('data-theme') === 'dark';
+}
+
+function tileURL() {
+  const style = isDark() ? 'dark_all' : 'light_all';
+  return `https://{s}.basemaps.cartocdn.com/${style}/{z}/{x}/{y}{r}.png`;
+}
+
+/* Re-theme every Chart.js instance for the current mode */
+function applyChartTheme(dark) {
+  const grid     = dark ? '#332E26' : '#EEEBE4';
+  const tick     = dark ? '#9E978A' : '#6B6B6B';
+  const inkLight = '#F1ECE2';
+  const inkDark  = '#1A1A1A';
+  Chart.defaults.color       = tick;
+  Chart.defaults.borderColor = grid;
+
+  /* swap the ink series tone (v5) so it stays visible on either ground,
+     preserving any alpha suffix */
+  const swap = c => {
+    if (typeof c !== 'string') return c;
+    const lc = c.toLowerCase();
+    if (lc.startsWith('#1a1a1a') || lc.startsWith('#f1ece2')) {
+      return (dark ? inkLight : inkDark) + c.slice(7);
+    }
+    return c;
+  };
+
+  CHARTS.forEach(ch => {
+    ['x', 'y', 'y1'].forEach(ax => {
+      const s = ch.options.scales && ch.options.scales[ax];
+      if (!s) return;
+      if (s.grid)  s.grid.color  = grid;
+      if (s.ticks) s.ticks.color = tick;
+      if (s.title) s.title.color = tick;
+    });
+    const tt = ch.options.plugins && ch.options.plugins.tooltip;
+    if (tt) {
+      tt.backgroundColor = dark ? '#1B1813' : '#FFFFFF';
+      tt.borderColor     = grid;
+      tt.titleColor      = dark ? '#F1ECE2' : '#1A1A1A';
+      tt.bodyColor       = dark ? '#DAD3C6' : '#2B2B2B';
+    }
+    (ch.data.datasets || []).forEach(ds => {
+      ds.borderColor     = Array.isArray(ds.borderColor)     ? ds.borderColor.map(swap)     : swap(ds.borderColor);
+      ds.backgroundColor = Array.isArray(ds.backgroundColor) ? ds.backgroundColor.map(swap) : swap(ds.backgroundColor);
+    });
+    ch.update('none');
+  });
+}
+
+/* Swap map tiles for the current mode */
+function applyMapTheme() {
+  const url = tileURL();
+  if (scrollTileLayer)  scrollTileLayer.setUrl(url);
+  if (sandboxTileLayer) sandboxTileLayer.setUrl(url);
+}
+
+const SUN_SVG  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>';
+const MOON_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>';
+
+function applyTheme(t) {
+  document.documentElement.setAttribute('data-theme', t);
+  const dark = t === 'dark';
+  const btn = document.getElementById('theme-toggle');
+  if (btn) {
+    btn.innerHTML = `<span class="toggle-icon" aria-hidden="true">${dark ? SUN_SVG : MOON_SVG}</span>` +
+                    `<span class="toggle-label">${dark ? 'Day' : 'Night'}</span>`;
+    btn.setAttribute('aria-label', dark ? 'Switch to day mode' : 'Switch to night mode');
+  }
+  applyChartTheme(dark);
+  applyMapTheme();
+}
+
+function initThemeToggle() {
+  const btn = document.getElementById('theme-toggle');
+  /* the head script already set the attribute; sync UI + canvas + maps */
+  applyTheme(isDark() ? 'dark' : 'light');
+  if (btn) btn.addEventListener('click', () => {
+    const next = isDark() ? 'light' : 'dark';
+    try { localStorage.setItem('iw-theme', next); } catch (e) {}
+    applyTheme(next);
+  });
+}
+
 /* ═══════════════════════════════════════════════════════════════
    2. PROGRESS BAR
 ═══════════════════════════════════════════════════════════════ */
@@ -169,7 +266,7 @@ function initScrollMap() {
     dragging:false, touchZoom:false, doubleClickZoom:false, keyboard:false
   });
 
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+  scrollTileLayer = L.tileLayer(tileURL(), {
     attribution:'&copy; <a href="https://openstreetmap.org">OSM</a> &copy; <a href="https://carto.com">CARTO</a>',
     subdomains:'abcd', maxZoom:14
   }).addTo(scrollMap);
@@ -295,7 +392,7 @@ function initSandboxMap() {
     zoomControl:true, scrollWheelZoom:false
   });
 
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+  sandboxTileLayer = L.tileLayer(tileURL(), {
     attribution:'&copy; <a href="https://openstreetmap.org">OSM</a> &copy; <a href="https://carto.com">CARTO</a>',
     subdomains:'abcd', maxZoom:14
   }).addTo(sandboxMap);
@@ -606,7 +703,7 @@ function initOilChart() {
   const ctx = document.getElementById('chart-oil-prices');
   if (!ctx) return;
   const D = crisisData.oilPrices;
-  new Chart(ctx, {
+  mkChart(ctx, {
     type:'line',
     data:{
       labels: D.map(d => d.date),
@@ -638,7 +735,7 @@ function initSandboxOilChart() {
   const ctx = document.getElementById('chart-sandbox-oil');
   if (!ctx) return;
   const D = crisisData.oilPrices;
-  new Chart(ctx, {
+  mkChart(ctx, {
     type:'line',
     data:{
       labels: D.map(d => d.date),
@@ -668,7 +765,7 @@ function initHormuzBar() {
   if (!ctx) return;
   const D = crisisData.hormuzDailyBar;
   const COLOR = { baseline:V.v3, permitted:V.v5, restricted:V.v7, zero:V.v0 };
-  new Chart(ctx, {
+  mkChart(ctx, {
     type:'bar',
     data:{
       labels: D.map(d => d.label),
@@ -728,7 +825,7 @@ function initFXReserves() {
   if (!ctx) return;
   const D = crisisData.fxReserves;
   const labels = D.map(d => d.date.replace(', 2026','').replace(', 2025',''));
-  new Chart(ctx, {
+  mkChart(ctx, {
     type:'line',
     data:{
       labels,
@@ -763,7 +860,7 @@ function initFXRate() {
   const ctx = document.getElementById('chart-fx-rate');
   if (!ctx) return;
   const D = crisisData.fxRates;
-  new Chart(ctx, {
+  mkChart(ctx, {
     type:'line',
     data:{
       labels: D.map(d => d.date),
@@ -806,7 +903,7 @@ function initCAD() {
   const ctx = document.getElementById('chart-cad');
   if (!ctx) return;
   const D = crisisData.cadScenarios;
-  new Chart(ctx, {
+  mkChart(ctx, {
     type:'bar',
     data:{
       labels: D.map(d => d.label.split('\n')[0]),   /* first line only for axis */
@@ -843,7 +940,7 @@ function initWarRisk() {
   const ctx = document.getElementById('chart-war-risk');
   if (!ctx) return;
   const D = crisisData.warRiskPremium;
-  new Chart(ctx, {
+  mkChart(ctx, {
     type:'line',
     data:{
       labels: D.map(d => d.date),
@@ -896,7 +993,7 @@ function initMariners() {
   const ctx = document.getElementById('chart-mariners');
   if (!ctx) return;
   const D = crisisData.marinersStranded;
-  new Chart(ctx, {
+  mkChart(ctx, {
     type:'line',
     data:{
       labels: D.map(d => d.date),
@@ -946,7 +1043,7 @@ function initMarinersSb() {
   const ctx = document.getElementById('chart-mariners-sb');
   if (!ctx) return;
   const D = crisisData.marinersStranded;
-  new Chart(ctx, {
+  mkChart(ctx, {
     type:'line',
     data:{
       labels: D.map(d => d.date),
@@ -975,7 +1072,7 @@ function initCADWidening() {
   const ctx = document.getElementById('chart-cad-widening');
   if (!ctx) return;
   const D = [...crisisData.embiExpanded].sort((a, b) => a.totalCAD - b.totalCAD);
-  new Chart(ctx, {
+  mkChart(ctx, {
     type:'bar',
     data:{
       labels: D.map(d => d.country),
@@ -1012,7 +1109,7 @@ function initEMBI() {
   const ctx = document.getElementById('chart-embi');
   if (!ctx) return;
   const D = [...crisisData.embiExpanded].sort((a, b) => b.embi_post - a.embi_post);
-  new Chart(ctx, {
+  mkChart(ctx, {
     type:'bar',
     data:{
       labels: D.map(d => d.country),
@@ -1049,7 +1146,7 @@ function initStateBars() {
   const ctx = document.getElementById('chart-state-bars');
   if (!ctx) return;
   const D = crisisData.remittancesStateShare;
-  new Chart(ctx, {
+  mkChart(ctx, {
     type:'bar',
     data:{
       labels: D.map(d => d.state),
@@ -1085,7 +1182,7 @@ function initRemittancesTrend() {
   const ctx = document.getElementById('chart-rem-trend');
   if (!ctx) return;
   const D = crisisData.remittancesTrend;
-  new Chart(ctx, {
+  mkChart(ctx, {
     type:'line',
     data:{
       labels: D.map(d => d.fy),
@@ -1216,5 +1313,8 @@ document.addEventListener('DOMContentLoaded', () => {
     firstStep.classList.add('is-active');
     activateMapStep(crisisData.scrollSteps[0]);
   }
+
+  /* Theme toggle — runs last so charts + maps exist to re-theme */
+  initThemeToggle();
 
 });

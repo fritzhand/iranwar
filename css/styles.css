@@ -93,6 +93,30 @@
   --phase-recovery:   #5E8A79;
 }
 
+/* ─── DARK MODE ("night mode") — warm charcoal, not neon ─── */
+[data-theme="dark"] {
+  --paper:        #14120E;
+  --surface:      #1B1813;
+  --inset:        #201C16;
+  --rule:         #332E26;
+  --rule-strong:  #463F33;
+
+  --ink:          #F1ECE2;
+  --body:         #DAD3C6;
+  --muted:        #9E978A;
+  --faint:        #6E675B;
+
+  --crisis:       #E06A5E;
+  --crisis-deep:  #C24A44;
+  --crisis-tint:  #2E1B18;
+  --link:         #8FB4D6;
+  --teal:         #5E8A79;
+  --teal-tint:    #20302A;
+  --gold:         #C9A24A;
+
+  --border-light: #29241D;
+}
+
 /* ─── RESET & BASE ─── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -117,6 +141,7 @@ body {
   line-height: 1.75;
   -webkit-font-smoothing: antialiased;
   overscroll-behavior-y: none;
+  transition: background 0.3s ease, color 0.3s ease;
 }
 
 a { color: var(--link); text-decoration: none; }
@@ -204,8 +229,43 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
   margin-left: auto;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
+
+.nav-icon-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 2px;
+  color: var(--muted);
+  transition: color 0.15s ease, background 0.15s ease;
+}
+.nav-icon-link:hover { color: var(--ink); background: var(--inset); }
+.nav-icon-link svg { width: 17px; height: 17px; display: block; }
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: transparent;
+  border: 1px solid var(--rule-strong);
+  border-radius: 2px;
+  padding: 6px 10px;
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+.theme-toggle:hover { color: var(--ink); border-color: var(--ink); }
+.theme-toggle svg { width: 14px; height: 14px; }
+.theme-toggle .toggle-label { display: inline; }
+@media (max-width: 600px) { .theme-toggle .toggle-label { display: none; } }
 
 .nav-phase-pill {
   font-family: var(--font-sans);
@@ -1111,7 +1171,7 @@ input[type="range"].crisis-slider::-moz-range-thumb {
 
 /* ─── LEAFLET OVERRIDES (light / Positron) ─── */
 .leaflet-container {
-  background: #EDEBE6 !important;
+  background: var(--inset) !important;
   font-family: var(--font-read) !important;
 }
 
