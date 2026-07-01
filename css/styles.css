@@ -164,7 +164,7 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
   position: fixed;
   top: 0; left: 0; right: 0;
   z-index: 900;
-  background: rgba(251, 250, 248, 0.9);
+  background: color-mix(in srgb, var(--paper) 90%, transparent);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--rule);
@@ -364,18 +364,54 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
 }
 
 .hero-byline {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
   font-family: var(--font-sans);
   font-size: 13px;
   letter-spacing: 0.03em;
   color: var(--muted);
   margin-bottom: 44px;
+  text-align: left;
 }
+
+.author-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid var(--rule-strong);
+  flex-shrink: 0;
+}
+.author-avatar.is-missing { display: none; }
+
+.byline-meta { display: flex; flex-direction: column; line-height: 1.4; }
+.byline-name-line { color: var(--body); }
+.byline-dateline { color: var(--muted); font-size: 12px; }
 
 .hero-byline-name {
   font-weight: 600;
   color: var(--ink);
   text-transform: uppercase;
   letter-spacing: 0.08em;
+}
+
+.byline-socials { display: inline-flex; gap: 4px; margin-left: 2px; }
+.byline-social {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 2px;
+  color: var(--muted);
+  transition: color 0.15s ease, background 0.15s ease;
+}
+.byline-social:hover { color: var(--ink); background: var(--inset); }
+.byline-social svg { width: 15px; height: 15px; display: block; }
+
+@media (max-width: 520px) {
+  .hero-byline { flex-wrap: wrap; justify-content: center; gap: 10px; }
 }
 
 .hero-stat-number.hero-stat-peak { color: var(--crisis); }
@@ -451,7 +487,7 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
   position: sticky;
   top: 55px; /* directly under the 56px main nav */
   z-index: 800;
-  background: rgba(244, 242, 236, 0.92);
+  background: color-mix(in srgb, var(--inset) 92%, transparent);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border-top: 1px solid var(--rule);
@@ -590,7 +626,7 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
 .map-step-overlay {
   flex-shrink: 0;
   padding: 14px 18px;
-  background: rgba(251, 250, 248, 0.94);
+  background: color-mix(in srgb, var(--paper) 94%, transparent);
   border-top: 1px solid var(--rule);
   min-height: 72px;
 }
@@ -1169,10 +1205,54 @@ input[type="range"].crisis-slider::-moz-range-thumb {
 .footer-credits a { color: var(--link); }
 .footer-credits a:hover { color: var(--crisis); }
 
+/* Fork & redesign credit */
+.footer-redesign {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 32px;
+  padding-top: 28px;
+  border-top: 1px solid var(--rule);
+}
+.redesign-avatar {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid var(--rule-strong);
+  flex-shrink: 0;
+}
+.redesign-avatar.is-missing { display: none; }
+.redesign-meta { font-family: var(--font-sans); line-height: 1.5; }
+.redesign-role {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--crisis);
+}
+.redesign-name {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.redesign-links { font-size: 12.5px; margin-top: 3px; }
+.redesign-links a { color: var(--link); }
+.redesign-links a:hover { color: var(--crisis); }
+.redesign-note { font-size: 12px; color: var(--faint); margin-top: 5px; }
+
 /* ─── LEAFLET OVERRIDES (light / Positron) ─── */
 .leaflet-container {
   background: var(--inset) !important;
   font-family: var(--font-read) !important;
+}
+
+/* Dark mode: CARTO Dark Matter borders/labels are very dim — lift them a
+   touch so country outlines and names stay legible. Markers live in other
+   panes and are unaffected. */
+[data-theme="dark"] .leaflet-tile {
+  filter: brightness(1.45) contrast(1.05);
 }
 
 .leaflet-popup-content-wrapper {
@@ -1233,10 +1313,11 @@ input[type="range"].crisis-slider::-moz-range-thumb {
 }
 
 .leaflet-control-attribution {
-  background: rgba(251,250,248,0.8) !important;
+  background: color-mix(in srgb, var(--paper) 80%, transparent) !important;
   color: var(--faint) !important;
   font-size: 9px !important;
 }
+.leaflet-control-attribution a { color: var(--muted) !important; }
 
 /* Pulse animation for active marker */
 @keyframes markerPulse {
