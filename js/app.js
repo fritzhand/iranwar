@@ -224,9 +224,8 @@ function scrollToPhase(phase) {
   const target = document.querySelector(`.scroll-step[data-phase="${phase}"]`)
               || document.getElementById('scrollytelling');
   if (!target) return;
-  const navH    = 56;   // main nav
   const legendH = document.getElementById('phase-legend')?.offsetHeight || 48;
-  const y = target.getBoundingClientRect().top + window.scrollY - navH - legendH - 16;
+  const y = target.getBoundingClientRect().top + window.scrollY - navHeight() - legendH - 16;
   window.scrollTo({ top: Math.max(y, 0), behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
 }
 
@@ -237,6 +236,16 @@ function highlightPhasePill(phase) {
   });
 }
 
+function navHeight() {
+  return document.getElementById('main-nav')?.offsetHeight || 56;
+}
+
+/* Publish the live nav height so sticky offsets (CSS var --nav-h) adapt to
+   the stacked mobile header. */
+function setNavHeightVar() {
+  document.documentElement.style.setProperty('--nav-h', navHeight() + 'px');
+}
+
 /* Toggle a shadow on the phase legend once it sticks under the nav */
 function initStickyLegend() {
   const sentinel = document.getElementById('phase-legend-sentinel');
@@ -244,9 +253,37 @@ function initStickyLegend() {
   if (!sentinel || !legend || !('IntersectionObserver' in window)) return;
   const io = new IntersectionObserver(
     ([entry]) => legend.classList.toggle('is-stuck', !entry.isIntersecting),
-    { rootMargin: '-56px 0px 0px 0px', threshold: 0 }
+    { rootMargin: `-${navHeight()}px 0px 0px 0px`, threshold: 0 }
   );
   io.observe(sentinel);
+}
+
+/* Floating "next section" scroll assist (bottom-right) */
+function initSectionNav() {
+  const btn = document.getElementById('section-nav');
+  if (!btn) return;
+  const sections = Array.from(document.querySelectorAll('#hero, #lede, #scrollytelling, section.chart-section-bg, section:not([id]):not(.chart-section-bg), #sandbox, #resolution-footer'));
+
+  const goto = el => {
+    const y = el.getBoundingClientRect().top + window.scrollY - navHeight() - 8;
+    window.scrollTo({ top: Math.max(y, 0), behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
+  };
+
+  btn.addEventListener('click', () => {
+    const atBottom = (window.innerHeight + window.scrollY) >= document.body.scrollHeight - 4;
+    if (atBottom) { window.scrollTo({ top: 0, behavior: prefersReducedMotion() ? 'auto' : 'smooth' }); return; }
+    const threshold = window.scrollY + navHeight() + 12;
+    const next = sections.find(s => (s.getBoundingClientRect().top + window.scrollY) > threshold);
+    goto(next || document.getElementById('resolution-footer'));
+  });
+
+  const onScroll = () => {
+    const y = window.scrollY;
+    btn.classList.toggle('is-visible', y > window.innerHeight * 0.55);
+    btn.classList.toggle('at-bottom', (window.innerHeight + y) >= document.body.scrollHeight - 4);
+  };
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -1262,9 +1299,22 @@ window.addEventListener('resize', () => {
 document.addEventListener('DOMContentLoaded', () => {
 
   /* Core UI */
+  setNavHeightVar();
   initProgressBar();
   buildPhaseLegend();
   initStickyLegend();
+  initSectionNav();
+
+  /* Keep sticky offsets + map sizing correct across resize/orientation */
+  let rT;
+  window.addEventListener('resize', () => {
+    clearTimeout(rT);
+    rT = setTimeout(() => {
+      setNavHeightVar();
+      scrollMap?.invalidateSize();
+      sandboxMap?.invalidateSize();
+    }, 150);
+  }, { passive: true });
 
   /* Maps */
   initScrollMap();

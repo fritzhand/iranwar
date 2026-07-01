@@ -78,6 +78,7 @@
   --measure:      680px;
   --section-pad:  96px 24px;
   --card-radius:  3px;
+  --nav-h:        56px; /* updated at runtime; sticky offsets key off this */
 
   /* Phase colors — editorial escalation (calm → crisis → resolution) */
   --phase-outbreak:   var(--faint);
@@ -281,7 +282,7 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
 /* ─── HERO / MASTHEAD ─── */
 #hero {
   background: var(--paper);
-  padding: 148px 24px 72px;
+  padding: calc(var(--nav-h) + 92px) 24px 72px;
   position: relative;
   overflow: hidden;
   border-bottom: 1px solid var(--rule);
@@ -485,7 +486,7 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
 #phase-legend {
   position: -webkit-sticky;
   position: sticky;
-  top: 55px; /* directly under the 56px main nav */
+  top: var(--nav-h); /* directly under the main nav */
   z-index: 800;
   background: color-mix(in srgb, var(--inset) 92%, transparent);
   backdrop-filter: blur(10px);
@@ -609,8 +610,8 @@ a:hover { text-decoration: underline; text-underline-offset: 3px; }
 .sticky-figure {
   position: -webkit-sticky;
   position: sticky;
-  top: 56px; /* Below nav */
-  height: calc(100vh - 56px);
+  top: var(--nav-h); /* Below nav */
+  height: calc(100vh - var(--nav-h));
   display: flex;
   flex-direction: column;
   border-right: 1px solid var(--rule);
@@ -1384,27 +1385,91 @@ input[type="range"].crisis-slider::-moz-range-thumb {
   text-transform: uppercase;
 }
 
+/* ─── SECTION-NAV FLOATING BUTTON ─── */
+.section-nav {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: var(--ink);
+  color: var(--paper);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(26, 26, 26, 0.28);
+  opacity: 0;
+  transform: translateY(8px);
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease, background 0.2s ease;
+  z-index: 850;
+}
+.section-nav.is-visible { opacity: 1; transform: none; pointer-events: auto; }
+.section-nav:hover { background: var(--crisis); }
+.section-nav svg { width: 20px; height: 20px; transition: transform 0.25s ease; }
+.section-nav.at-bottom svg { transform: rotate(180deg); }
+
 /* ─── RESPONSIVE ─── */
 @media (max-width: 900px) {
   .scroll-section {
     grid-template-columns: 1fr;
   }
 
+  /* Keep the map sticky on mobile so the scrollytelling stays in sync;
+     sits below the nav + one-row legend. */
   .sticky-figure {
-    position: relative;
-    top: 0;
-    height: 50vh;
+    position: -webkit-sticky;
+    position: sticky;
+    top: calc(var(--nav-h) + 44px);
+    height: 46vh;
     border-right: none;
     border-bottom: 1px solid var(--rule);
+    background: var(--paper);
+    z-index: 5;
   }
 
-  .scroll-steps { padding: 32px 20px; }
-  .scroll-step  { min-height: 50vh; }
+  .scroll-steps { padding: 20px 20px 48px; }
+  .scroll-steps::before { height: 2vh; }
+  .scroll-step  { min-height: 62vh; }
 
   .chart-grid-2 { grid-template-columns: 1fr; }
   .stat-cards   { grid-template-columns: repeat(2, 1fr); }
   .sandbox-split { grid-template-columns: 1fr; }
   #sandbox-map-container { height: 300px; }
+}
+
+/* Stack the header on narrow screens: logo row + full-width title row */
+@media (max-width: 680px) {
+  #main-nav {
+    height: auto;
+    min-height: 52px;
+    flex-wrap: wrap;
+    align-items: center;
+    padding: 8px 16px;
+    gap: 6px 10px;
+  }
+  .nav-divider { display: none; }
+  .nav-logo { flex: 0 1 auto; min-width: 0; }
+  .nav-logo-text { min-width: 0; }
+  .nav-logo-secondary { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .nav-right { margin-left: auto; }
+  .nav-project-title {
+    order: 5;
+    flex-basis: 100%;
+    width: 100%;
+    white-space: normal;
+    font-size: 12px;
+    line-height: 1.3;
+    padding-top: 6px;
+    border-top: 1px solid var(--rule);
+    color: var(--muted);
+  }
+  /* one scrolling row of phase pills instead of several wrapped rows */
+  .phase-legend-inner { flex-wrap: nowrap; }
+  #phase-legend { padding: 9px 16px; }
 }
 
 @media (max-width: 600px) {
@@ -1416,6 +1481,7 @@ input[type="range"].crisis-slider::-moz-range-thumb {
   .nav-phase-pill { display: none; }
   .geo-table { font-size: 14px; }
   .geo-table th, .geo-table td { padding: 10px 8px; }
+  .section-nav { right: 14px; bottom: 14px; width: 44px; height: 44px; }
 }
 
 /* ─── CSS SCROLL-DRIVEN REVEAL (Chrome 115+, Safari 26+) ─── */
