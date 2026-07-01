@@ -24,17 +24,21 @@
    1. CONSTANTS & HELPERS
 ═══════════════════════════════════════════════════════════════ */
 
+/* Editorial categorical/escalation palette — replaces viridis.
+   Ordered low→high salience; chosen so multi-series charts stay
+   distinguishable in editorial tones (gray → blue/teal → ink → oxblood). */
 const V = {
-  v0:'#440154', v1:'#482878', v2:'#3e4989', v3:'#31688e',
-  v4:'#26828e', v5:'#1f9e89', v6:'#35b779', v7:'#6ece58',
-  v8:'#b5de2b', v9:'#fde725'
+  v0:'#C9C3B6', v1:'#9A9488', v2:'#326891', v3:'#3E6B5E',
+  v4:'#8A8478', v5:'#1A1A1A', v6:'#B8860B', v7:'#C8756B',
+  v8:'#7A1010', v9:'#A61B1B'
 };
 
+/* Phase colors — editorial escalation (calm → crisis → resolution) */
 const PC = {
-  outbreak:'#482878', closure:'#3e4989', escalation:'#31688e',
-  peak:'#fde725',     stalemate:'#26828e', ceasefire1:'#1f9e89',
-  collapse:'#b5de2b', blockade:'#6ece58', relapse:'#b5de2b',
-  resolution:'#35b779', recovery:'#1f9e89'
+  outbreak:'#9A9488', closure:'#C8756B', escalation:'#BC4C41',
+  peak:'#A61B1B',     stalemate:'#8A8478', ceasefire1:'#3E6B5E',
+  collapse:'#7A1010', blockade:'#4A0909', relapse:'#BC4C41',
+  resolution:'#3E6B5E', recovery:'#5E8A79'
 };
 
 /* Day offset from Feb 28 = day 0 (2026 is not a leap year) */
@@ -58,23 +62,23 @@ function getHormuzStatus(day) {
   return 'open';                                   // post-MoU
 }
 
-/* Chart.js global dark defaults */
-Chart.defaults.color          = '#555';
-Chart.defaults.borderColor    = '#1e1e1e';
-Chart.defaults.font.family    = "'Space Mono', monospace";
-Chart.defaults.font.size      = 10;
+/* Chart.js global editorial (light) defaults */
+Chart.defaults.color          = '#6B6B6B';
+Chart.defaults.borderColor    = '#E4E1DA';
+Chart.defaults.font.family    = "'Libre Franklin', system-ui, sans-serif";
+Chart.defaults.font.size      = 11;
 
 const TIP = {
-  backgroundColor:'#161616', borderColor:'#2a2a2a', borderWidth:1,
-  titleColor:'#f0f0f0', bodyColor:'#999', padding:12,
-  titleFont:{ family:"'Space Grotesk',sans-serif", weight:'700', size:12 },
-  bodyFont:{ family:"'Space Mono',monospace", size:10 }
+  backgroundColor:'#FFFFFF', borderColor:'#E4E1DA', borderWidth:1,
+  titleColor:'#1A1A1A', bodyColor:'#2B2B2B', padding:12,
+  titleFont:{ family:"'Libre Franklin', sans-serif", weight:'600', size:12 },
+  bodyFont:{ family:"'Libre Franklin', sans-serif", size:11 }
 };
 
 function mkScale(overrides = {}) {
   return {
-    grid:  { color:'#1a1a1a' },
-    ticks: { color:'#555', font:{ family:"'Space Mono',monospace", size:10 } },
+    grid:  { color:'#EEEBE4' },
+    ticks: { color:'#6B6B6B', font:{ family:"'Libre Franklin', sans-serif", size:10 } },
     ...overrides
   };
 }
@@ -98,11 +102,10 @@ function buildPhaseLegend() {
   const c = document.getElementById('phase-pills-container');
   if (!c) return;
   Object.entries(PC).forEach(([phase, color]) => {
-    const light = color === V.v8 || color === V.v9;
     const el = document.createElement('span');
     el.className = 'phase-pill';
-    el.style.cssText = `background:${color};color:${light ? '#000' : '#fff'}`;
-    el.innerHTML = `<span class="dot" style="background:${light ? '#000' : '#fff'}"></span>${phase.replace(/\d/g,'').toUpperCase()}`;
+    el.style.cssText = 'background:#F4F2EC;color:#1A1A1A;border:1px solid #E4E1DA';
+    el.innerHTML = `<span class="dot" style="background:${color};opacity:1"></span>${phase.replace(/\d/g,'').toUpperCase()}`;
     c.appendChild(el);
   });
 }
@@ -124,7 +127,7 @@ function initScrollMap() {
     dragging:false, touchZoom:false, doubleClickZoom:false, keyboard:false
   });
 
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
     attribution:'&copy; <a href="https://openstreetmap.org">OSM</a> &copy; <a href="https://carto.com">CARTO</a>',
     subdomains:'abcd', maxZoom:14
   }).addTo(scrollMap);
@@ -133,7 +136,7 @@ function initScrollMap() {
     const color = PC[ev.phase] || V.v3;
     const m = L.circleMarker([ev.lat, ev.lng], {
       radius:5, fillColor:color,
-      color:'rgba(255,255,255,0.35)', weight:1,
+      color:'rgba(26,26,26,0.35)', weight:1,
       fillOpacity:0.75, opacity:1
     }).bindPopup(
       `<div class="map-popup-date">${ev.date} · ${(ev.phase||'').toUpperCase()}</div>` +
@@ -153,7 +156,7 @@ function activateMapStep(step) {
   if (prevActiveId && scrollMkrs[prevActiveId]) {
     const p = scrollMkrs[prevActiveId];
     p.m.setRadius(5);
-    p.m.setStyle({ fillOpacity:0.75, weight:1, color:'rgba(255,255,255,0.35)' });
+    p.m.setStyle({ fillOpacity:0.75, weight:1, color:'rgba(26,26,26,0.35)' });
   }
 
   /* Activate new */
@@ -161,7 +164,7 @@ function activateMapStep(step) {
   if (ev && scrollMkrs[ev.id]) {
     const cur = scrollMkrs[ev.id];
     cur.m.setRadius(12);
-    cur.m.setStyle({ fillOpacity:1, weight:2.5, color:'#ffffff' });
+    cur.m.setStyle({ fillOpacity:1, weight:2.5, color:'#1A1A1A' });
     prevActiveId = ev.id;
   }
 
@@ -194,7 +197,7 @@ function buildScrollSteps() {
       <div class="step-metrics">
         <div class="step-metric-chip">🛢 Brent <strong>$${step.metric_brent}</strong>/bbl</div>
         <div class="step-metric-chip">🛢 Oman <strong>$${step.metric_oman}</strong>/bbl</div>
-        ${step.metric_note ? `<div class="step-metric-chip"><em style="color:#888">${step.metric_note}</em></div>` : ''}
+        ${step.metric_note ? `<div class="step-metric-chip"><em style="color:#6B6B6B">${step.metric_note}</em></div>` : ''}
       </div>
       <p class="step-source">
         ${((crisisData.mapEvents||[]).find(e => e.id === step.eventId)||{}).source || ''}
@@ -248,7 +251,7 @@ function initSandboxMap() {
     zoomControl:true, scrollWheelZoom:false
   });
 
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
     attribution:'&copy; <a href="https://openstreetmap.org">OSM</a> &copy; <a href="https://carto.com">CARTO</a>',
     subdomains:'abcd', maxZoom:14
   }).addTo(sandboxMap);
@@ -258,7 +261,7 @@ function initSandboxMap() {
     const color = PC[ev.phase] || V.v3;
     L.circleMarker([ev.lat, ev.lng], {
       radius:5, fillColor:color,
-      color:'rgba(255,255,255,0.25)', weight:1, fillOpacity:0.7
+      color:'rgba(26,26,26,0.25)', weight:1, fillOpacity:0.7
     }).bindPopup(
       `<div class="map-popup-date">${ev.date} · ${(ev.phase||'').toUpperCase()}</div>` +
       `<div class="map-popup-title">${ev.title}</div>` +
@@ -270,7 +273,7 @@ function initSandboxMap() {
   /* Hormuz status indicator */
   hormuzMarker = L.circleMarker([26.34, 56.50], {
     radius:16, fillColor:V.v5,
-    color:'#ffffff', weight:2, fillOpacity:0.85
+    color:'#1A1A1A', weight:2, fillOpacity:0.85
   }).bindTooltip('Strait of Hormuz', { permanent:false, direction:'top' })
     .addTo(sandboxMap);
 }
@@ -386,7 +389,7 @@ function drawSankey(svgId, { nodes, links }, colHeaders = [], opts = {}) {
     let y = PAD.top;
     cns.forEach(n => {
       const h = Math.max((n.val / tot) * usable, 8);
-      pos[n.idx] = { x:xBase, y, h, midY: y + h / 2, color: n.color || '#555' };
+      pos[n.idx] = { x:xBase, y, h, midY: y + h / 2, color: n.color || '#6B6B6B' };
       y += h + NG;
     });
   }
@@ -457,9 +460,9 @@ function drawSankey(svgId, { nodes, links }, colHeaders = [], opts = {}) {
       t.setAttribute('x', lx);
       t.setAttribute('y', ly0 + li * lh);
       t.setAttribute('text-anchor', isLast ? 'end' : 'start');
-      t.setAttribute('fill', '#aaaaaa');
+      t.setAttribute('fill', '#6B6B6Baaa');
       t.setAttribute('font-size', '9');
-      t.setAttribute('font-family', "'Space Mono',monospace");
+      t.setAttribute('font-family', "'Libre Franklin', sans-serif");
       t.textContent = line;
       svgEl.appendChild(t);
     });
@@ -475,9 +478,9 @@ function drawSankey(svgId, { nodes, links }, colHeaders = [], opts = {}) {
     t.setAttribute('x', isLast ? xBase + NW : xBase);
     t.setAttribute('y', PAD.top - 14);
     t.setAttribute('text-anchor', isLast ? 'end' : 'start');
-    t.setAttribute('fill', '#555555');
+    t.setAttribute('fill', '#6B6B6B555');
     t.setAttribute('font-size', '8.5');
-    t.setAttribute('font-family', "'Space Mono',monospace");
+    t.setAttribute('font-family', "'Libre Franklin', sans-serif");
     t.setAttribute('font-weight', '700');
     t.setAttribute('letter-spacing', '1');
     t.textContent = hdr.toUpperCase();
@@ -496,7 +499,7 @@ function drawSankey(svgId, { nodes, links }, colHeaders = [], opts = {}) {
     const bt = document.createElementNS(NS, 'text');
     bt.setAttribute('x', bx); bt.setAttribute('y', by);
     bt.setAttribute('fill', '#fde725'); bt.setAttribute('font-size', '8');
-    bt.setAttribute('font-family', "'Space Mono',monospace");
+    bt.setAttribute('font-family', "'Libre Franklin', sans-serif");
     bt.setAttribute('font-weight', '700');
     bt.textContent = 'BLOCKED Mar 1 – present';
     svgEl.appendChild(bt);
@@ -576,11 +579,11 @@ function initOilChart() {
       responsive:true, maintainAspectRatio:false,
       plugins:{
         tooltip:{ ...TIP, callbacks:{ label:c=>` ${c.dataset.label}: $${c.parsed.y.toFixed(2)}/bbl` }},
-        legend:{ labels:{ color:'#666', boxWidth:22, padding:16 }}
+        legend:{ labels:{ color:'#6B6B6B', boxWidth:22, padding:16 }}
       },
       scales:{
-        x: mkScale({ ticks:{ color:'#444', maxRotation:50, font:{ size:9 }}}),
-        y: mkScale({ min:60, max:180, title:{ display:true, text:'USD/bbl', color:'#444', font:{ size:10 }}})
+        x: mkScale({ ticks:{ color:'#6B6B6B', maxRotation:50, font:{ size:9 }}}),
+        y: mkScale({ min:60, max:180, title:{ display:true, text:'USD/bbl', color:'#6B6B6B', font:{ size:10 }}})
       }
     }
   });
@@ -605,10 +608,10 @@ function initSandboxOilChart() {
       responsive:true, maintainAspectRatio:false,
       plugins:{
         tooltip:{ ...TIP, callbacks:{ label:c=>` ${c.dataset.label}: $${c.parsed.y.toFixed(2)}` }},
-        legend:{ labels:{ color:'#555', boxWidth:16, font:{ size:9 }}}
+        legend:{ labels:{ color:'#6B6B6B', boxWidth:16, font:{ size:9 }}}
       },
       scales:{
-        x: mkScale({ ticks:{ color:'#444', maxRotation:45, font:{ size:8 }}}),
+        x: mkScale({ ticks:{ color:'#6B6B6B', maxRotation:45, font:{ size:8 }}}),
         y: mkScale({ min:60, max:180 })
       }
     }
@@ -647,28 +650,28 @@ function initHormuzBar() {
           annotations:{
             baseline:{
               type:'line', yMin:94, yMax:94,
-              borderColor:'rgba(255,255,255,0.2)', borderWidth:1.5,
+              borderColor:'rgba(26,26,26,0.2)', borderWidth:1.5,
               borderDash:[5,4],
               label:{ display:true, content:'IMF PortWatch baseline ~94/day',
-                color:'#555', font:{ family:"'Space Mono',monospace", size:9 },
+                color:'#6B6B6B', font:{ family:"'Libre Franklin', sans-serif", size:9 },
                 position:'end', backgroundColor:'transparent' }
             },
             eiaBaseline:{
               type:'line', yMin:100, yMax:100,
-              borderColor:'rgba(255,255,255,0.1)', borderWidth:1,
+              borderColor:'rgba(26,26,26,0.1)', borderWidth:1,
               borderDash:[3,6],
               label:{ display:true, content:"EIA/Lloyd's ~100/day",
-                color:'#333', font:{ family:"'Space Mono',monospace", size:8 },
+                color:'#2B2B2B', font:{ family:"'Libre Franklin', sans-serif", size:8 },
                 position:'start', backgroundColor:'transparent' }
             }
           }
         }
       },
       scales:{
-        x: mkScale({ ticks:{ color:'#444', font:{ size:9 }}}),
+        x: mkScale({ ticks:{ color:'#6B6B6B', font:{ size:9 }}}),
         y: mkScale({ min:0, max:110,
-          title:{ display:true, text:'Transits/day', color:'#444', font:{ size:10 }},
-          grid:{ color:'#1a1a1a' }
+          title:{ display:true, text:'Transits/day', color:'#6B6B6B', font:{ size:10 }},
+          grid:{ color:'#EEEBE4' }
         })
       }
     }
@@ -704,7 +707,7 @@ function initFXReserves() {
       scales:{
         x: mkScale({ ticks:{ maxRotation:45, font:{ size:9 }}}),
         y: mkScale({ min:690, max:735,
-          title:{ display:true, text:'USD Billion', color:'#444', font:{ size:10 }}
+          title:{ display:true, text:'USD Billion', color:'#6B6B6B', font:{ size:10 }}
         })
       }
     }
@@ -738,7 +741,7 @@ function initFXRate() {
               type:'line', yMin:96.844, yMax:96.844,
               borderColor: V.v9 + '88', borderWidth:1.5, borderDash:[5,4],
               label:{ display:true, content:'₹96.844 peak (May 20, CONFIRMED)',
-                color: V.v9, font:{ family:"'Space Mono',monospace", size:9 },
+                color: V.v9, font:{ family:"'Libre Franklin', sans-serif", size:9 },
                 position:'end', backgroundColor:'rgba(0,0,0,0.5)' }
             }
           }
@@ -747,7 +750,7 @@ function initFXRate() {
       scales:{
         x: mkScale({ ticks:{ maxRotation:45, font:{ size:9 }}}),
         y: mkScale({ min:85, max:98,
-          title:{ display:true, text:'₹ per $1', color:'#444', font:{ size:10 }}
+          title:{ display:true, text:'₹ per $1', color:'#6B6B6B', font:{ size:10 }}
         })
       }
     }
@@ -782,9 +785,9 @@ function initCAD() {
         legend:{ display:false }
       },
       scales:{
-        x: mkScale({ ticks:{ color:'#555', font:{ size:9 }, maxRotation:0 }}),
+        x: mkScale({ ticks:{ color:'#6B6B6B', font:{ size:9 }, maxRotation:0 }}),
         y: mkScale({ min:-3.2, max:0.3,
-          title:{ display:true, text:'% of GDP', color:'#444', font:{ size:10 }}
+          title:{ display:true, text:'% of GDP', color:'#6B6B6B', font:{ size:10 }}
         })
       }
     }
@@ -821,14 +824,14 @@ function initWarRisk() {
               type:'line', yMin:2.5, yMax:2.5,
               borderColor: V.v9 + '99', borderWidth:1.5, borderDash:[5,4],
               label:{ display:true, content:'2.5% AWRP peak (early Mar — S&P Global CONFIRMED)',
-                color: V.v9, font:{ family:"'Space Mono',monospace", size:9 },
+                color: V.v9, font:{ family:"'Libre Franklin', sans-serif", size:9 },
                 position:'end', backgroundColor:'rgba(0,0,0,0.6)' }
             },
             baseline:{
               type:'line', yMin:0.125, yMax:0.125,
-              borderColor:'rgba(255,255,255,0.15)', borderWidth:1, borderDash:[3,5],
+              borderColor:'rgba(26,26,26,0.15)', borderWidth:1, borderDash:[3,5],
               label:{ display:true, content:'Pre-conflict baseline 0.10–0.15%',
-                color:'#444', font:{ family:"'Space Mono',monospace", size:8 },
+                color:'#6B6B6B', font:{ family:"'Libre Franklin', sans-serif", size:8 },
                 position:'start', backgroundColor:'transparent' }
             }
           }
@@ -837,7 +840,7 @@ function initWarRisk() {
       scales:{
         x: mkScale({ ticks:{ maxRotation:40, font:{ size:9 }}}),
         y: mkScale({ min:0, max:3.0,
-          title:{ display:true, text:'AWRP % of H&M value / 7 days', color:'#444', font:{ size:10 }}
+          title:{ display:true, text:'AWRP % of H&M value / 7 days', color:'#6B6B6B', font:{ size:10 }}
         })
       }
     }
@@ -866,18 +869,18 @@ function initMariners() {
       responsive:true, maintainAspectRatio:false,
       plugins:{
         tooltip:{ ...TIP },
-        legend:{ labels:{ color:'#666', boxWidth:20 }},
+        legend:{ labels:{ color:'#6B6B6B', boxWidth:20 }},
         annotation:{
           annotations:{
             imoAlert:{ type:'line', yMin:20000, yMax:20000, borderColor:V.v9+'55',
               borderWidth:1.5, borderDash:[5,4],
               label:{ display:true, content:'IMO declared humanitarian crisis (Apr 21)',
-                color:V.v9, font:{ family:"'Space Mono',monospace", size:9 },
+                color:V.v9, font:{ family:"'Libre Franklin', sans-serif", size:9 },
                 position:'start', backgroundColor:'rgba(0,0,0,0.5)' }},
             genCaine:{ type:'line', yMin:22500, yMax:22500, borderColor:V.v8+'55',
               borderWidth:1.5, borderDash:[3,5],
               label:{ display:true, content:'Gen. Caine confirmed 22,500 (May 6)',
-                color:V.v8, font:{ family:"'Space Mono',monospace", size:9 },
+                color:V.v8, font:{ family:"'Libre Franklin', sans-serif", size:9 },
                 position:'end', backgroundColor:'rgba(0,0,0,0.5)' }}
           }
         }
@@ -885,9 +888,9 @@ function initMariners() {
       scales:{
         x:  mkScale(),
         y:  mkScale({ min:0, max:25000, position:'left',
-          title:{ display:true, text:'Mariners stranded', color:'#444', font:{ size:10 }}}),
+          title:{ display:true, text:'Mariners stranded', color:'#6B6B6B', font:{ size:10 }}}),
         y1: mkScale({ min:0, max:2200,  position:'right',
-          title:{ display:true, text:'Vessels stranded', color:'#444', font:{ size:10 }},
+          title:{ display:true, text:'Vessels stranded', color:'#6B6B6B', font:{ size:10 }},
           grid:{ drawOnChartArea:false }})
       }
     }
@@ -912,7 +915,7 @@ function initMarinersSb() {
       responsive:true, maintainAspectRatio:false,
       plugins:{
         tooltip:{ ...TIP },
-        legend:{ labels:{ color:'#555', boxWidth:12, font:{ size:9 }}}
+        legend:{ labels:{ color:'#6B6B6B', boxWidth:12, font:{ size:9 }}}
       },
       scales:{
         x:  mkScale({ ticks:{ font:{ size:8 }, maxRotation:30 }}),
@@ -949,11 +952,11 @@ function initCADWidening() {
           label:  c => ` ${c.dataset.label}: ${c.parsed.x.toFixed(1)}% of GDP`,
           footer: c => `Rating: ${D[c[0].dataIndex].rating} | Source: ${D[c[0].dataIndex].source}`
         }},
-        legend:{ labels:{ color:'#666', boxWidth:14 }}
+        legend:{ labels:{ color:'#6B6B6B', boxWidth:14 }}
       },
       scales:{
         x: mkScale({ min:-8, max:0.5,
-          title:{ display:true, text:'% of GDP', color:'#444', font:{ size:10 }}}),
+          title:{ display:true, text:'% of GDP', color:'#6B6B6B', font:{ size:10 }}}),
         y: mkScale({ ticks:{ font:{ size:10 }}})
       }
     }
@@ -985,12 +988,12 @@ function initEMBI() {
           label:  c => ` ${c.dataset.label}: ${c.parsed.y} bps`,
           footer: c => `Rating: ${D[c[0].dataIndex].rating}`
         }},
-        legend:{ labels:{ color:'#666', boxWidth:14 }}
+        legend:{ labels:{ color:'#6B6B6B', boxWidth:14 }}
       },
       scales:{
         x: mkScale({ ticks:{ maxRotation:40, font:{ size:9 }}}),
         y: mkScale({ min:0,
-          title:{ display:true, text:'Basis points (bps)', color:'#444', font:{ size:10 }}
+          title:{ display:true, text:'Basis points (bps)', color:'#6B6B6B', font:{ size:10 }}
         })
       }
     }
@@ -1026,7 +1029,7 @@ function initStateBars() {
       scales:{
         x: mkScale({ ticks:{ maxRotation:45, font:{ size:9 }}}),
         y: mkScale({ min:0, max:24,
-          title:{ display:true, text:'% of total', color:'#444', font:{ size:10 }}
+          title:{ display:true, text:'% of total', color:'#6B6B6B', font:{ size:10 }}
         })
       }
     }
@@ -1060,12 +1063,12 @@ function initRemittancesTrend() {
           label:  c => ` ${c.dataset.label}: $${c.parsed.y.toFixed(1)}B`,
           footer: c => D[c[0].dataIndex]?.note || ''
         }},
-        legend:{ labels:{ color:'#666', boxWidth:20 }}
+        legend:{ labels:{ color:'#6B6B6B', boxWidth:20 }}
       },
       scales:{
         x: mkScale({ ticks:{ maxRotation:40, font:{ size:9 }}}),
         y: mkScale({ min:0, max:145,
-          title:{ display:true, text:'USD Billion', color:'#444', font:{ size:10 }}
+          title:{ display:true, text:'USD Billion', color:'#6B6B6B', font:{ size:10 }}
         })
       }
     }
@@ -1092,7 +1095,7 @@ function buildGeoTable() {
     tr.innerHTML =
       `<td class="country-cell">${row.country}</td>` +
       `<td><span class="role-badge">${row.role}</span></td>` +
-      `<td style="max-width:420px;font-size:12px;color:#888;line-height:1.5">${row.cost}</td>` +
+      `<td style="max-width:420px;font-size:12px;color:#6B6B6B;line-height:1.5">${row.cost}</td>` +
       `<td><span class="net-badge ${cls}">${row.net}</span></td>`;
     tbody.appendChild(tr);
   });
